@@ -1,0 +1,19 @@
+/* Typography */
+$line-height: 26px;
+$serif-stack: 'times new roman', times, georgia, serif;
+$sans-serif-stack: helvetica, arial, sans-serif;
+$font-size: 16px;
+$line-height: 20px;
+/* Color */
+$background-color: #fff;
+/* Space */
+$black: #000;
+$white: #fff;
+$border-width: 1px;
+/* Breakpoints */
+$breakpoints: (
+  'small': (max-width: 900px),
+  'medium': (max-width: 1000px),
+  'large': (max-width: 1600px),
+  'short': (max-height: 700px)
+);

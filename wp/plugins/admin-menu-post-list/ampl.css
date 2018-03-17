@@ -1,0 +1,55 @@
+.post_list_view_headline {
+	padding-left: 10px !important; 
+	padding-right: 10px !important;
+	margin-top: -8px !important;
+}
+.post_list_view_headline hr {
+	border-color: #666 !important;
+}
+#adminmenu .wp-submenu .post_list_view a {
+	line-height: 1.6 !important;
+	padding: 0px 4px 4px 0 !important;
+}
+.post_list_view_indent {
+	margin-left: 12px;
+}
+.ampl-drop, .ampl-child-dash {
+	color: #666;
+}
+.ampl-child-dash {
+	float: left;
+	padding-right: 4px;
+}
+.ampl-drop {
+	display: inline-block;
+	font-size: 16px;
+	font-weight: bold;
+}
+.ampl-drop:hover {
+	color: #bbb;
+}
+.ampl-down {
+	display: none;
+}
+#adminmenu .ampl a {
+	display: inline; /* -block */
+}
+#adminmenu a.ampl-empty {
+	padding: 0 !important;
+}
+.ampl-settings-page .ampl-border-top {
+	border-top: 1px solid #ccc;
+}
+.ampl-settings-page .ampl-border-bottom {
+	border-bottom: 1px solid #ccc;
+}
+.ampl-settings-page td {
+	width: 200px;
+}
+.ampl-settings-page .submit {
+	padding-left: 10px;
+}
+.ampl-settings-page .saved-notice {
+	padding-left: 20px;
+	margin-top: -15px;
+}
