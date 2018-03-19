@@ -12,16 +12,16 @@ export default {
   data() {
     return {
       meta: {
-        sitename: 'PWR BOILERPLATE',
+        sitename: 'WEBSHOP MXDNESS',
         facebook: 'xxxxxxxxx',
         twitter: '@xxxxx',
-        title: 'PWR BOILERPLATE',
+        title: 'WOOCOMMERCE',
         description: 'xxxx',
         type: 'website',
         image: 'http://xxxx',
         url: 'http://xxxx',
         defaults: {
-          title: 'PWR BOILERPLATE',
+          title: 'WOOCOMMERCE',
           description: 'xxxx',
           image: 'http://xxxx',
           type: 'website'
@@ -44,7 +44,9 @@ export default {
     ...mapActions([
       'GET_PRODUCTS',
       'GET_PRODUCT_CATEGORIES',
-      'GET_PRODUCT'
+      'GET_PRODUCT_VARIATIONS',
+      'GET_PRODUCT',
+      'POST_ORDER'
     ]),
     $_setMetaTags(meta = {}) {
       this.meta.title = meta.title || this.meta.defaults.title
@@ -62,7 +64,9 @@ export default {
         this.GET_PRODUCT_CATEGORIES()
       }
       if (route.name === 'product') {
-        this.GET_PRODUCT(route.params.slug)
+        this.GET_PRODUCT(route.params.slug).then(() => {
+          this.GET_PRODUCT_VARIATIONS(this.main.singleProduct.product.id)
+        })
       }
     }
   },

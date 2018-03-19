@@ -45,6 +45,18 @@ export default {
       )
     })
   },
+  getProductVariations(id) {
+    return new Promise((resolve, reject) => {
+      WooCommerce.getAsync('products/' + id + '/variations').then(
+        response => {
+          resolve(JSON.parse(response.toJSON().body))
+        },
+        response => {
+          reject(response)
+        }
+      )
+    })
+  },
   getProductCategories() {
     return new Promise((resolve, reject) => {
       WooCommerce.getAsync('products/categories').then(
@@ -55,6 +67,15 @@ export default {
           reject(response)
         }
       )
+    })
+  },
+  placeOrder(data) {
+    return new Promise((resolve, reject) => {
+      WooCommerce.post('orders', data, (err, data, res) => {
+        if (err) {
+          console.log(err)
+        } else console.log(res)
+      })
     })
   }
 }
