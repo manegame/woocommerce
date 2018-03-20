@@ -50,6 +50,7 @@ const emptyOrder = {
 }
 
 const state = {
+  cart: [],
   products: [],
   categories: [],
   singleProduct: emptySingle,
@@ -69,6 +70,11 @@ const actions = {
   },
   async [actionTypes.GET_PRODUCT_VARIATIONS]({commit, state}, id) {
     commit(mutationTypes.SET_PRODUCT_VARIATIONS, await api.getProductVariations(id))
+  },
+  // ADD TO CART
+  [actionTypes.ADD_TO_CART]({commit, state}, data) {
+    console.log(data)
+    commit(mutationTypes.ADD_TO_CART, data)
   },
   // CHANGE ORDER
   [actionTypes.ADD_PRODUCT]({commit, state}, data) {
@@ -96,6 +102,9 @@ const mutations = {
   [mutationTypes.SET_ORDER](state, data) {
     state.order = data
   },
+  [mutationTypes.ADD_TO_CART](state, data) {
+    state.cart.push(data)
+  },
   [mutationTypes.ADD_PRODUCT](state, data) {
     console.log('add a product, ', data)
     state.order.line_items.push(data)
@@ -107,6 +116,22 @@ const getters = {
     if (state.singleProduct.variations.length > 0) {
       return state.singleProduct.variations.find(v => v.attributes[0].option === option)
     } else return false
+  },
+  productById: (state) => (id) => {
+    if (state.products.length > 0) {
+      return state.products.find(p => p.id === id)
+    } else return false
+  },
+  cartTotal: (state) => {
+    let total = 0
+    state.cart.map(i => {
+      if (i.variation) {
+        total += Number(i.variation.price)
+      } else {
+        total += Number(i.product.price)
+      }
+    })
+    return total
   }
 }
 

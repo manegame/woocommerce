@@ -1,28 +1,44 @@
 <template>
   <div class="checkout">
-    {{main.order}}
+    <form>
+      <input type="text"
+             value='first name'/>
+      <input type="text"
+             value='last name'/>
+      <input type="text"
+             value='address'/>
+      <input type="text"
+             value='house number'/>
+      <input type="text"
+             value='e-mail'/>
+    </form>
+    <cart />
   </div>
 </template>
 
 <script>
-import {mapState, mapActions} from 'vuex'
+import {mapState, mapGetters} from 'vuex'
+import cart from '@/components/cart'
 export default {
   name: 'checkout',
+  components: {
+    cart
+  },
   data() {
     return {}
   },
   computed: {
-    ...mapState(['main'])
+    ...mapState(['main']),
+    ...mapGetters({
+      product: 'productById',
+      variation: 'variationById'
+    })
   },
-  mounted() {},
-  updated: function() {
+  mounted: function() {
     this.$nextTick(function() {
       // Code that will run only after the
       // entire view has been re-rendered
     })
-  },
-  methods: {
-    ...mapActions(['UPDATE_ORDER'])
   }
 }
 </script>
@@ -33,6 +49,12 @@ export default {
 @import '../style/_variables.scss';
 
 .checkout {
-  background: red;
+  &__item {
+    width: 200px;
+
+    img {
+      width: 100%;
+    }
+  }
 }
 </style>

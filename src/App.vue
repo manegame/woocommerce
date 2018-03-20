@@ -43,8 +43,8 @@ export default {
   methods: {
     ...mapActions([
       'GET_PRODUCTS',
-      'GET_PRODUCT_CATEGORIES',
       'GET_PRODUCT_VARIATIONS',
+      'GET_PRODUCT_CATEGORIES',
       'GET_PRODUCT',
       'POST_ORDER'
     ]),
@@ -58,15 +58,23 @@ export default {
     },
     $_fetchData(route) {
       // All requests for data from the server originates from this function
-      console.log('fetch data', route)
       if (route.name === 'mainView') {
-        this.GET_PRODUCTS()
+        this.GET_PRODUCTS().then(() => {
+          this.main.products.forEach(p => {
+            if (p.variations.length > 0) {
+              console.log('get variations also', p.id)
+            }
+          })
+        })
         this.GET_PRODUCT_CATEGORIES()
       }
       if (route.name === 'product') {
         this.GET_PRODUCT(route.params.slug).then(() => {
           this.GET_PRODUCT_VARIATIONS(this.main.singleProduct.product.id)
         })
+      }
+      if (route.name === 'checkout') {
+        this.GET_PRODUCTS()
       }
     }
   },

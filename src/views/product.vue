@@ -1,24 +1,24 @@
 <template>
   <div class="product">
     <template v-if='main.singleProduct.product !== ""'>
-      <!-- INITIAL -->
-      <template v-if='selected === ""'>
-        <img :src='main.singleProduct.product.images[0].src' />
-        <p>€{{main.singleProduct.product.price}}</p>
-      </template>
-      <!-- CHANGES BASED ON VARIATION -->
-      <template v-else>
+      <!-- VARIABLE PRODUCTS -->
+      <template v-if='variableProduct && selected !== ""'>
         <img :src='variation(selected).image.src' />
         <p>€{{variation(selected).price}}</p>
+      </template>
+      <!-- SIMPLE PRODUCTS -->
+      <template v-else>
+        <img :src='main.singleProduct.product.images[0].src' />
+        <p>€{{main.singleProduct.product.price}}</p>
       </template>
       <!-- DESCRIPTION ETC. -->
       <p v-html='main.singleProduct.product.short_description'/>
       <!-- VARIABLES -->
       <div v-if='main.singleProduct.product.attributes.length > 0'>
         <div v-for='attribute in main.singleProduct.product.attributes'>
-          <form v-if='attribute.name === "Size"'>
+          <form v-if='attribute.name !== ""'>
             <select v-model='selected'>
-              <option disabled value=''>Please select a size</option>
+              <option disabled value=''>MAKE YOUR CHOICE</option>
               <option v-for='option in attribute.options'
                       :value='option'
                       v-html='option'/>
@@ -29,16 +29,22 @@
       <!-- BUY -->
       <button type='submit'
               value='buy'
-              @click.prevent='buyThis'>Buy</button>
+              @click.prevent='addToCart'>Add to Cart</button>
       {{msg}}
+       <cart />
     </template>
   </div>
 </template>
 
 <script>
 import {mapState, mapGetters, mapActions} from 'vuex'
+import cart from '@/components/cart'
+
 export default {
   name: 'product',
+  components: {
+    cart
+  },
   data() {
     return {
       selected: '',
@@ -60,38 +66,22 @@ export default {
     variableProduct() {
       if (this.main.singleProduct.variations.length > 0) return true
       else return false
-    },
-    productId() {
-      return this.main.singleProduct.product.id
-    },
-    variationId() {
-      return this.variation(this.selected).id
-    },
-    quantity() {
-      return 1
     }
   },
   methods: {
-    ...mapActions(['ADD_PRODUCT']),
-    buyThis() {
-      if (this.variableProduct) {
-        console.log('buy a variable product')
+    ...mapActions(['ADD_TO_CART']),
+    addToCart() {
+      if (this.variableProduct === true) {
         if (this.selected === '') {
-          this.msg = 'please select a size'
+          this.msg = 'first select an option'
         } else {
-          this.ADD_PRODUCT({
-            product_id: this.productId,
-            variation_id: this.variationId,
-            quantity: this.quantity
+          this.ADD_TO_CART({
+            product: this.main.singleProduct.product,
+            variation: this.variation(this.selected)
           })
-          this.msg = 'have fun with your product'
         }
       } else {
-        console.log('buy a normal product')
-        this.ADD_PRODUCT({
-          product_id: this.productId,
-          quantity: this.quantity
-        })
+        this.ADD_TO_CART({ product: this.main.singleProduct.product })
       }
     }
   }

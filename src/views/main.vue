@@ -8,15 +8,20 @@
                  class="main__product">
                    <img class="main__product__image" :src='product.images[0].src'/>
                    <h1>{{product.name}}</h1>
-                   <h1>{{product.slug}}</h1>
     </router-link>
+    <cart />
   </div>
 </template>
 
 <script>
 import {mapState} from 'vuex'
+import cart from '@/components/cart'
+
 export default {
   name: 'mainView',
+  components: {
+    cart
+  },
   props: [],
   computed: {
     ...mapState(['main'])
