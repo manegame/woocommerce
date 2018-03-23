@@ -1,5 +1,6 @@
 <template>
   <div class="checkout">
+    {{msg}}
     <form>
       <label>Billing</label><br/>
       <input type="text"
@@ -57,17 +58,13 @@
        </template>
     </form>
 
-    <input type="submit" @click='submit'/>
-
-    <!-- <p>Please give us your payment details:</p>
+    <p>Please give us your payment details:</p>
     <card class='stripe-card'
           :class='{ complete }'
           stripe='pk_test_dmBWXf8cUVhaeZeM4lLwWgae'
           :options='stripeOptions'
           @change='complete = $event.complete' />
-
-    <button class='pay-with-stripe' @click='pay' :disabled='!complete'>Pay with credit card</button> -->
-
+    <button class='pay-with-stripe' @click='pay' :disabled='!complete'>Pay with credit card</button>
     <cart />
   </div>
 </template>
@@ -85,11 +82,13 @@ export default {
   },
   data() {
     return {
+      msg: '',
       complete: false,
-      order_id: 33,
       stripeOptions: {
         // see https://stripe.com/docs/stripe.js#element-options for details
+        iconStyle: 'default'
       },
+      token: '',
       sameAsBilling: true,
       billing: {
         firstName: '',
@@ -129,9 +128,10 @@ export default {
   methods: {
     ...mapActions([
       'ADD_CUSTOMER_INFO',
-      'PLACE_ORDER'
+      'PLACE_ORDER',
+      'PAY_ORDER'
     ]),
-    submit() {
+    pay() {
       let data = {
         sameAsBilling: this.sameAsBilling,
         billing: '',
@@ -140,33 +140,33 @@ export default {
       if (this.sameAsBilling) {
         data.billing = this.billing
         data.shipping = this.billing
-        this.ADD_CUSTOMER_INFO(data).then(() => {
-          console.log('place order')
-          this.PLACE_ORDER(this.main.order)
-        })
-        console.log(data)
       } else {
         data.billing = this.billing
         data.shipping = this.shipping
-        this.ADD_CUSTOMER_INFO(data).then(() => {
-          console.log('place order')
-          this.PLACE_ORDER(this.main.order)
-        })
       }
-    },
-    pay () {
-      // createToken returns a Promise which resolves in a result object with
-      // either a token or an error key.
-      // See https://stripe.com/docs/api#tokens for the token object.
-      // See https://stripe.com/docs/api#errors for the error object.
-      // More general https://stripe.com/docs/stripe.js#stripe-create-token.
-      createToken().then(result => {
-        console.log(result.token)
-        if (result.token) {
-          console.log('send token to server', result.token.id, this.order_id)
-        } else {
-          console.log('there was a problemmmm', result)
-        }
+      this.ADD_CUSTOMER_INFO(data).then(() => {
+        console.log('added customer info')
+        this.complete = false
+        this.msg = 'hold on, processing payment...'
+        this.PLACE_ORDER(this.main.order).then(() => {
+          console.log('placed pending order')
+          createToken().then(result => {
+            if (result.token) {
+              console.log(result.token)
+              let data = {
+                order_id: this.main.payment.orderResponse.id,
+                payment_token: result.token.id,
+                payment_method: 'stripe'
+              }
+              this.PAY_ORDER(data).then(() => {
+                if (this.main.payment.progress.code === 200) this.msg = this.main.payment.progress.message
+              })
+            } else {
+              console.log('something went wrong, ', result)
+              this.msg = 'sorry, something went wrong'
+            }
+          })
+        })
       })
     }
   }

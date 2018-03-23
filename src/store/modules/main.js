@@ -49,7 +49,11 @@ const state = {
   categories: [],
   shipping_methods: [],
   singleProduct: emptySingle,
-  order: emptyOrder
+  order: emptyOrder,
+  payment: {
+    orderResponse: '',
+    progress: ''
+  }
 }
 
 const actions = {
@@ -77,8 +81,11 @@ const actions = {
     commit(mutationTypes.ADD_CUSTOMER_INFO, data)
   },
   // PROCESSING THE ORDER
-  [actionTypes.PLACE_ORDER]({commit, state}, order) {
-    commit(mutationTypes.PLACE_ORDER, api.placeOrder(order))
+  async [actionTypes.PLACE_ORDER]({commit, state}, order) {
+    commit(mutationTypes.PLACE_ORDER, await api.placeOrder(order))
+  },
+  async [actionTypes.PAY_ORDER]({commit, state}, data) {
+    commit(mutationTypes.PAY_ORDER, await api.payOrder(data))
   }
 }
 
@@ -110,11 +117,11 @@ const mutations = {
     }
   },
   [mutationTypes.ADD_CUSTOMER_INFO](state, data) {
-    let b         = state.order.billing
-    let s         = state.order.shipping
-    let same      = data.sameAsBilling
+    let b = state.order.billing
+    let s = state.order.shipping
+    let same = data.sameAsBilling
     if (same) {
-      b.address_1   = data.billing.address
+      b.address_1 = data.billing.address
       b.first_name = s.first_name = data.billing.firstName
       b.last_name = s.last_name = data.billing.lastName
       b.city = s.city = data.billing.city
@@ -124,26 +131,30 @@ const mutations = {
       b.email = data.billing.email
       b.phone = data.billing.phone
     } else {
-      b.address_1   = data.billing.address
-      b.first_name  = data.billing.firstName
-      b.last_name   = data.billing.lastName
-      b.city        = data.billing.city
-      b.state       = data.billing.state
-      b.postcode    = data.billing.postcode
-      b.country     = data.billing.country
-      b.email       = data.billing.email
-      b.phone       = data.billing.phone
-      s.address_1   = data.shipping.address
-      s.first_name  = data.shipping.firstName
-      s.last_name   = data.shipping.lastName
-      s.city        = data.shipping.city
-      s.state       = data.shipping.state
-      s.postcode    = data.shipping.postcode
-      s.country     = data.shipping.country
+      b.address_1 = data.billing.address
+      b.first_name = data.billing.firstName
+      b.last_name = data.billing.lastName
+      b.city = data.billing.city
+      b.state = data.billing.state
+      b.postcode = data.billing.postcode
+      b.country = data.billing.country
+      b.email = data.billing.email
+      b.phone = data.billing.phone
+      s.address_1 = data.shipping.address
+      s.first_name = data.shipping.firstName
+      s.last_name = data.shipping.lastName
+      s.city = data.shipping.city
+      s.state = data.shipping.state
+      s.postcode = data.shipping.postcode
+      s.country = data.shipping.country
     }
   },
   [mutationTypes.PLACE_ORDER](state, data) {
-    console.log(data)
+    console.log('data that returns from placing the order: ', data)
+    state.payment.orderResponse = data
+  },
+  [mutationTypes.PAY_ORDER](state, data) {
+    state.payment.progress = data
   }
 }
 

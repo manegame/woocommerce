@@ -81,20 +81,30 @@ export default {
       )
     })
   },
-  payWithStripe(data) {
+  placeOrder(data) {
     return new Promise((resolve, reject) => {
-      WooCommerce.post('stripe-payment', data, (err, data, res) => {
-        if (err) {
-          console.log(err)
-        } else console.log(res)
-      })
+      WooCommerce.postAsync('orders', data).then(
+        response => {
+          resolve(JSON.parse(response.toJSON().body))
+        },
+        response => {
+          reject(response)
+        }
+      )
     })
   },
-  placeOrder(data) {
-    WooCommerce.post('orders', data, (err, data, res) => {
-      if (err) {
-        console.log(err)
-      } else console.log(res)
+  payOrder(data) {
+    return new Promise((resolve, reject) => {
+      WooCommerce.postAsync('stripe-payment', data).then(
+        response => {
+          console.log('payment success')
+          resolve(JSON.parse(response.toJSON().body))
+        },
+        response => {
+          console.log('payment rejected')
+          reject(response)
+        }
+      )
     })
   }
 }
