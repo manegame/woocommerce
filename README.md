@@ -1,6 +1,16 @@
-# PWR Boilerplate
+SETUP WORDPRESS
+- Woocommerce
+- Custom endpoint for payments
+- Sendgrid for mail
 
-vue (+ wp)
+SETUP SENDGRID
+
+SETUP Stripe
+
+SETUP HOST
+Wildcard SSL certificate for secure payment (€115 for two years inc. VAT)
+
+vue (+ wp + woocommerce)
 
 Based on vue-cli/webpack
 
@@ -32,7 +42,7 @@ npm test
 
 ## (S)CSS method
 
-[BEM](http://getbem.com/) 
+[BEM](http://getbem.com/)
 
 ## Recommended editor
 
