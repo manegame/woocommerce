@@ -7,12 +7,6 @@ const emptySingle = {
   variations: ''
 }
 
-// {
-//   product_id: '',
-//   variation_id: '',
-//   quantity: ''
-// }
-
 const emptyOrder = {
   payment_method: '',
   payment_method_title: '',
@@ -42,9 +36,9 @@ const emptyOrder = {
   line_items: [],
   shipping_lines: [
     {
-      method_id: '',
-      method_title: '',
-      total: ''
+      method_id: 'flat_rate',
+      method_title: 'Flat rate',
+      total: '10'
     }
   ]
 }
@@ -53,6 +47,7 @@ const state = {
   cart: [],
   products: [],
   categories: [],
+  shipping_methods: [],
   singleProduct: emptySingle,
   order: emptyOrder
 }
@@ -65,24 +60,25 @@ const actions = {
   async [actionTypes.GET_PRODUCT_CATEGORIES]({commit, state}) {
     commit(mutationTypes.SET_PRODUCT_CATEGORIES, await api.getProductCategories())
   },
+  async [actionTypes.GET_SHIPPING_METHODS]({commit, state}) {
+    commit(mutationTypes.SET_SHIPPING_METHODS, await api.getShippingMethods())
+  },
   async [actionTypes.GET_PRODUCT]({commit, state}, slug) {
     commit(mutationTypes.SET_PRODUCT, await api.getProduct(slug))
   },
   async [actionTypes.GET_PRODUCT_VARIATIONS]({commit, state}, id) {
     commit(mutationTypes.SET_PRODUCT_VARIATIONS, await api.getProductVariations(id))
   },
-  // ADD TO CART
+  // BUILDING THE ORDER
   [actionTypes.ADD_TO_CART]({commit, state}, data) {
-    console.log(data)
     commit(mutationTypes.ADD_TO_CART, data)
   },
-  // CHANGE ORDER
-  [actionTypes.ADD_PRODUCT]({commit, state}, data) {
-    commit(mutationTypes.ADD_PRODUCT, data)
+  [actionTypes.ADD_CUSTOMER_INFO]({commit, state}, data) {
+    commit(mutationTypes.ADD_CUSTOMER_INFO, data)
   },
-  // POST TYPES
-  async [actionTypes.POST_ORDER]({commit, state}, data) {
-    commit(mutationTypes.SET_ORDER, await api.placeOrder(data))
+  // PROCESSING THE ORDER
+  [actionTypes.PLACE_ORDER]({commit, state}, order) {
+    commit(mutationTypes.PLACE_ORDER, api.placeOrder(order))
   }
 }
 
@@ -93,21 +89,61 @@ const mutations = {
   [mutationTypes.SET_PRODUCT_CATEGORIES](state, data) {
     state.categories = data
   },
+  [mutationTypes.SET_SHIPPING_METHODS](state, data) {
+    state.shipping_methods = data
+  },
   [mutationTypes.SET_PRODUCT](state, data) {
     state.singleProduct.product = data
   },
   [mutationTypes.SET_PRODUCT_VARIATIONS](state, data) {
     state.singleProduct.variations = data
   },
-  [mutationTypes.SET_ORDER](state, data) {
-    state.order = data
-  },
   [mutationTypes.ADD_TO_CART](state, data) {
+    console.log(data.product)
     state.cart.push(data)
+    if (data.product.variations.length > 0) {
+      console.log('variable product', data)
+      state.order.line_items.push({ product_id: data.product.id, variation_id: data.variation.id, quantity: 1 })
+    } else {
+      console.log('simple product', data.product)
+      state.order.line_items.push({ product_id: data.product.id, quantity: 1 })
+    }
   },
-  [mutationTypes.ADD_PRODUCT](state, data) {
-    console.log('add a product, ', data)
-    state.order.line_items.push(data)
+  [mutationTypes.ADD_CUSTOMER_INFO](state, data) {
+    let b         = state.order.billing
+    let s         = state.order.shipping
+    let same      = data.sameAsBilling
+    if (same) {
+      b.address_1   = data.billing.address
+      b.first_name = s.first_name = data.billing.firstName
+      b.last_name = s.last_name = data.billing.lastName
+      b.city = s.city = data.billing.city
+      b.state = s.state = data.billing.state
+      b.postcode = s.postcode = data.billing.postcode
+      b.country = s.country = data.billing.country
+      b.email = data.billing.email
+      b.phone = data.billing.phone
+    } else {
+      b.address_1   = data.billing.address
+      b.first_name  = data.billing.firstName
+      b.last_name   = data.billing.lastName
+      b.city        = data.billing.city
+      b.state       = data.billing.state
+      b.postcode    = data.billing.postcode
+      b.country     = data.billing.country
+      b.email       = data.billing.email
+      b.phone       = data.billing.phone
+      s.address_1   = data.shipping.address
+      s.first_name  = data.shipping.firstName
+      s.last_name   = data.shipping.lastName
+      s.city        = data.shipping.city
+      s.state       = data.shipping.state
+      s.postcode    = data.shipping.postcode
+      s.country     = data.shipping.country
+    }
+  },
+  [mutationTypes.PLACE_ORDER](state, data) {
+    console.log(data)
   }
 }
 

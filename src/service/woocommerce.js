@@ -57,6 +57,18 @@ export default {
       )
     })
   },
+  getShippingMethods() {
+    return new Promise((resolve, reject) => {
+      WooCommerce.getAsync('shipping_methods').then(
+        response => {
+          resolve(JSON.parse(response.toJSON().body))
+        },
+        response => {
+          reject(response)
+        }
+      )
+    })
+  },
   getProductCategories() {
     return new Promise((resolve, reject) => {
       WooCommerce.getAsync('products/categories').then(
@@ -69,13 +81,20 @@ export default {
       )
     })
   },
-  placeOrder(data) {
+  payWithStripe(data) {
     return new Promise((resolve, reject) => {
-      WooCommerce.post('orders', data, (err, data, res) => {
+      WooCommerce.post('stripe-payment', data, (err, data, res) => {
         if (err) {
           console.log(err)
         } else console.log(res)
       })
+    })
+  },
+  placeOrder(data) {
+    WooCommerce.post('orders', data, (err, data, res) => {
+      if (err) {
+        console.log(err)
+      } else console.log(res)
     })
   }
 }

@@ -24,8 +24,6 @@
     <router-link v-if='$route.name !== "checkout"'
                  tag='button'
                  :to="{ name: 'checkout' }">Checkout</router-link>
-    <button v-else
-            @click='handlePay'>pay</button>
   </div>
 </template>
 

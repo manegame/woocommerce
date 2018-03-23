@@ -45,6 +45,7 @@ export default {
       'GET_PRODUCTS',
       'GET_PRODUCT_VARIATIONS',
       'GET_PRODUCT_CATEGORIES',
+      'GET_SHIPPING_METHODS',
       'GET_PRODUCT',
       'POST_ORDER'
     ]),
@@ -74,6 +75,7 @@ export default {
         })
       }
       if (route.name === 'checkout') {
+        this.GET_SHIPPING_METHODS()
         this.GET_PRODUCTS()
       }
     }
@@ -86,7 +88,7 @@ export default {
     },
     meta() {
       return [
-        {name: 'application-name', content: 'Beirut Art Center'},
+        {name: 'application-name', content: 'WEBSHXP'},
         {name: 'description', content: this.meta.description},
         // Twitter
         {name: 'twitter:card', content: 'summary'},

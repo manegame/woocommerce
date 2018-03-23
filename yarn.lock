@@ -7919,6 +7919,10 @@ vue-router@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.1.tgz#d9b05ad9c7420ba0f626d6500d693e60092cc1e9"
 
+vue-stripe-elements@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/vue-stripe-elements/-/vue-stripe-elements-0.2.3.tgz#bae6b867c842e11871b01c7e479dedca9de2bd31"
+
 vue-style-loader@^3.0.3:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/vue-style-loader/-/vue-style-loader-3.1.2.tgz#6b66ad34998fc9520c2f1e4d5fa4091641c1597a"
