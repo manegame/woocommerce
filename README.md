@@ -1,3 +1,19 @@
+WHAT UP!
+
+A webshop with
+
+- Payment
+  - credit card
+  - Paypal (T.B.Added)
+
+- Woocommerce features
+  - stock keeping
+  - variable products (diff sizes, colors, etc.)
+  - email
+    - get notified when someone places a new order
+    - email your customers with e-mail templates made to fit your need
+
+
 SETUP WORDPRESS
 - Woocommerce
 - Custom endpoint for payments

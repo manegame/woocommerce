@@ -4,6 +4,7 @@ import Router from 'vue-router'
 const mainView = () => import('@/views/main')
 const product = () => import('@/views/product')
 const checkout = () => import('@/views/checkout')
+const orderComplete = () => import('@/views/order-complete')
 
 Vue.use(Router)
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/checkout',
       name: 'checkout',
       component: checkout
+    },
+    {
+      path: '/checkout/complete',
+      name: 'order-complete',
+      component: orderComplete
     }
   ]
 })

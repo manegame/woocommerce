@@ -1,7 +1,9 @@
 <template>
   <div class="checkout">
-    {{msg}}
-    <form>
+    {{msg}}<br />
+    billing complete: {{billingComplete}}
+
+    <form @submit.prevent='pay' @change='validate'>
       <label>Billing</label><br/>
       <input type="text"
              placeholder='first name'
@@ -56,15 +58,16 @@
                 placeholder='country'
                 v-model='shipping.country'/><br />
        </template>
-    </form>
 
-    <p>Please give us your payment details:</p>
-    <card class='stripe-card'
-          :class='{ complete }'
-          stripe='pk_test_dmBWXf8cUVhaeZeM4lLwWgae'
-          :options='stripeOptions'
-          @change='complete = $event.complete' />
-    <button class='pay-with-stripe' @click='pay' :disabled='!complete'>Pay with credit card</button>
+       <p>Payment</p>
+       <card class='stripe-card'
+             :class='{ complete }'
+             stripe='pk_test_dmBWXf8cUVhaeZeM4lLwWgae'
+             :options='stripeOptions'
+             @change='complete = $event.complete' />
+
+       <input class='pay-with-stripe' type='submit' value='Pay with credit card' :disabled='!complete'>
+    </form>
     <cart />
   </div>
 </template>
@@ -83,32 +86,36 @@ export default {
   data() {
     return {
       msg: '',
+      errors: [],
+      billingComplete: false,
       complete: false,
       stripeOptions: {
         // see https://stripe.com/docs/stripe.js#element-options for details
+        hidePostalCode: true,
         iconStyle: 'default'
       },
       token: '',
       sameAsBilling: true,
+      missingBilling: [],
       billing: {
-        firstName: '',
-        lastName: '',
-        address: '',
-        city: '',
+        firstName: null,
+        lastName: null,
+        address: null,
+        city: null,
         state: '',
-        postcode: '',
-        country: '',
-        email: '',
-        phone: ''
+        postcode: null,
+        country: null,
+        email: null,
+        phone: null
       },
       shipping: {
-        firstName: '',
-        lastName: '',
-        address: '',
-        city: '',
-        state: '',
-        postcode: '',
-        country: ''
+        firstName: null,
+        lastName: null,
+        address: null,
+        city: null,
+        state: null,
+        postcode: null,
+        country: null
       }
     }
   },
@@ -117,7 +124,11 @@ export default {
     ...mapGetters({
       product: 'productById',
       variation: 'variationById'
-    })
+    }),
+    validForm() {
+      console.log('computing')
+      if (this.firstName === '') return false
+    }
   },
   mounted: function() {
     this.$nextTick(function() {
@@ -131,6 +142,16 @@ export default {
       'PLACE_ORDER',
       'PAY_ORDER'
     ]),
+    validate() {
+      this.missingBilling = []
+      Object.keys(this.billing).forEach(key => {
+        if (key !== 'state') { // exceptions
+          if (this.billing[key] === null) this.missingBilling.push(key)
+        }
+      })
+      if (this.missingBilling.length === 0) this.billingComplete = true
+      else this.billingComplete = false
+    },
     pay() {
       let data = {
         sameAsBilling: this.sameAsBilling,
@@ -147,9 +168,18 @@ export default {
       this.ADD_CUSTOMER_INFO(data).then(() => {
         console.log('added customer info')
         this.complete = false
+        this.msg = 'hold on, placing order...'
+        if (!this.billingComplete) {
+          this.msg = 'please fill in the missing fields'
+          return
+        }
         this.msg = 'hold on, processing payment...'
         this.PLACE_ORDER(this.main.order).then(() => {
-          console.log('placed pending order')
+          if (this.main.payment.orderResponse.code === 'rest_invalid_param') {
+            this.msg = 'please check if you\'ve filled in your infos correctly'
+            // console.log(this.main.orderResponse)
+            return
+          }
           createToken().then(result => {
             if (result.token) {
               console.log(result.token)
@@ -159,7 +189,11 @@ export default {
                 payment_method: 'stripe'
               }
               this.PAY_ORDER(data).then(() => {
-                if (this.main.payment.progress.code === 200) this.msg = this.main.payment.progress.message
+                if (this.main.payment.progress.code === 200) {
+                  this.msg = this.main.payment.progress.message
+                  console.log('payment complete')
+                  this.$router.push({ name: 'order-complete' })
+                }
               })
             } else {
               console.log('something went wrong, ', result)
@@ -177,6 +211,10 @@ export default {
 @import '../style/helpers/_mixins.scss';
 @import '../style/helpers/_responsive.scss';
 @import '../style/_variables.scss';
+
+.valid {
+  border-color: green;
+}
 
 .stripe-card {
   width: 300px;
