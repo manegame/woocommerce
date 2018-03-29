@@ -57,9 +57,9 @@ export default {
       )
     })
   },
-  getShippingMethods() {
+  getProductCategories() {
     return new Promise((resolve, reject) => {
-      WooCommerce.getAsync('shipping_methods').then(
+      WooCommerce.getAsync('products/categories').then(
         response => {
           resolve(JSON.parse(response.toJSON().body))
         },
@@ -69,9 +69,34 @@ export default {
       )
     })
   },
-  getProductCategories() {
+  getShippingZones() {
     return new Promise((resolve, reject) => {
-      WooCommerce.getAsync('products/categories').then(
+      WooCommerce.getAsync('shipping/zones').then(
+        response => {
+          resolve(JSON.parse(response.toJSON().body))
+        },
+        response => {
+          reject(response)
+        }
+      )
+    })
+  },
+  getShippingZoneLocations(id) {
+    return new Promise((resolve, reject) => {
+      WooCommerce.getAsync('shipping/zones/' + id + '/locations').then(
+        response => {
+          console.log(JSON.parse(response.toJSON().body)[0])
+          resolve(JSON.parse(response.toJSON().body))
+        },
+        response => {
+          reject(response)
+        }
+      )
+    })
+  },
+  getShippingZoneMethods(id) {
+    return new Promise((resolve, reject) => {
+      WooCommerce.getAsync('shipping/zones/' + id + '/methods').then(
         response => {
           resolve(JSON.parse(response.toJSON().body))
         },
@@ -95,9 +120,9 @@ export default {
   },
   payOrder(data) {
     return new Promise((resolve, reject) => {
-      WooCommerce.postAsync('stripe-payment', data).then(
+      WooCommerce.postAsync('manegame-payment', data).then(
         response => {
-          console.log('payment success')
+          console.log('Thank you for shopping with Manegame')
           resolve(JSON.parse(response.toJSON().body))
         },
         response => {

@@ -47,6 +47,8 @@ const state = {
   cart: [],
   products: [],
   categories: [],
+  shipping_zones: [],
+  shipping_locations: [],
   shipping_methods: [],
   singleProduct: emptySingle,
   order: emptyOrder,
@@ -64,14 +66,20 @@ const actions = {
   async [actionTypes.GET_PRODUCT_CATEGORIES]({commit, state}) {
     commit(mutationTypes.SET_PRODUCT_CATEGORIES, await api.getProductCategories())
   },
-  async [actionTypes.GET_SHIPPING_METHODS]({commit, state}) {
-    commit(mutationTypes.SET_SHIPPING_METHODS, await api.getShippingMethods())
-  },
   async [actionTypes.GET_PRODUCT]({commit, state}, slug) {
     commit(mutationTypes.SET_PRODUCT, await api.getProduct(slug))
   },
   async [actionTypes.GET_PRODUCT_VARIATIONS]({commit, state}, id) {
     commit(mutationTypes.SET_PRODUCT_VARIATIONS, await api.getProductVariations(id))
+  },
+  async [actionTypes.GET_SHIPPING_ZONES]({commit, state}) {
+    commit(mutationTypes.SET_SHIPPING_ZONES, await api.getShippingZones())
+  },
+  async [actionTypes.GET_SHIPPING_ZONE_LOCATIONS]({commit, state}, id) {
+    commit(mutationTypes.SET_SHIPPING_ZONE_LOCATIONS, await api.getShippingZoneLocations(id))
+  },
+  async [actionTypes.GET_SHIPPING_ZONE_METHODS]({commit, state}, id) {
+    commit(mutationTypes.SET_SHIPPING_ZONE_METHODS, await api.getShippingZoneMethods(id))
   },
   // BUILDING THE ORDER
   [actionTypes.ADD_TO_CART]({commit, state}, data) {
@@ -96,11 +104,17 @@ const mutations = {
   [mutationTypes.SET_PRODUCT_CATEGORIES](state, data) {
     state.categories = data
   },
-  [mutationTypes.SET_SHIPPING_METHODS](state, data) {
-    state.shipping_methods = data
-  },
   [mutationTypes.SET_PRODUCT](state, data) {
     state.singleProduct.product = data
+  },
+  [mutationTypes.SET_SHIPPING_ZONES](state, data) {
+    state.shipping_zones = data
+  },
+  [mutationTypes.SET_SHIPPING_ZONE_LOCATIONS](state, data) {
+    state.shipping_locations.push(data)
+  },
+  [mutationTypes.SET_SHIPPING_ZONE_METHODS](state, data) {
+    state.shipping_methods.push(data)
   },
   [mutationTypes.SET_PRODUCT_VARIATIONS](state, data) {
     state.singleProduct.variations = data
@@ -159,6 +173,15 @@ const mutations = {
 }
 
 const getters = {
+  shippingZoneFromCountry: (state) => (countryCode) => {
+    if (state.shipping_locations.length > 0) {
+      state.shipping_locations.forEach(l => {
+        l.forEach(a => {
+          if (a.code === countryCode) console.log('found it, yu know it', a)
+        })
+      })
+    }
+  },
   productVariationByOption: (state) => (option) => {
     if (state.singleProduct.variations.length > 0) {
       return state.singleProduct.variations.find(v => v.attributes[0].option === option)

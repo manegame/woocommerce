@@ -3,12 +3,12 @@
     <template v-if='main.singleProduct.product !== ""'>
       <!-- VARIABLE PRODUCTS -->
       <template v-if='variableProduct && selected !== ""'>
-        <img :src='variation(selected).image.src' />
+        <mg :source='variation(selected).image.src' />
         <p>€{{variation(selected).price}}</p>
       </template>
       <!-- SIMPLE PRODUCTS -->
       <template v-else>
-        <img :src='main.singleProduct.product.images[0].src' />
+        <mg :source='main.singleProduct.product.images[0].src' />
         <p>€{{main.singleProduct.product.price}}</p>
       </template>
       <!-- DESCRIPTION ETC. -->
@@ -38,13 +38,12 @@
 
 <script>
 import {mapState, mapGetters, mapActions} from 'vuex'
+import mg from '@/components/base/mg'
 import cart from '@/components/cart'
 
 export default {
   name: 'product',
-  components: {
-    cart
-  },
+  components: { mg, cart },
   data() {
     return {
       selected: '',

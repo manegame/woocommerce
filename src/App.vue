@@ -45,7 +45,9 @@ export default {
       'GET_PRODUCTS',
       'GET_PRODUCT_VARIATIONS',
       'GET_PRODUCT_CATEGORIES',
-      'GET_SHIPPING_METHODS',
+      'GET_SHIPPING_ZONES',
+      'GET_SHIPPING_ZONE_LOCATIONS',
+      'GET_SHIPPING_ZONE_METHODS',
       'GET_PRODUCT',
       'POST_ORDER'
     ]),
@@ -63,7 +65,7 @@ export default {
         this.GET_PRODUCTS().then(() => {
           this.main.products.forEach(p => {
             if (p.variations.length > 0) {
-              console.log('get variations also', p.id)
+              // console.log('get variations also', p.id)
             }
           })
         })
@@ -75,8 +77,14 @@ export default {
         })
       }
       if (route.name === 'checkout') {
-        this.GET_SHIPPING_METHODS()
         this.GET_PRODUCTS()
+        this.GET_SHIPPING_ZONES().then(() => {
+          console.log('got shipping zones')
+          this.main.shipping_zones.forEach(z => {
+            // console.log(z)
+            this.GET_SHIPPING_ZONE_LOCATIONS(z.id)
+          })
+        })
       }
     }
   },
@@ -118,6 +126,7 @@ export default {
 
 <style lang='scss'>
 @import './style/helpers/_mixins.scss';
+@import './style/helpers/_progressive.css';
 @import './style/helpers/_responsive.scss';
 @import './style/_variables.scss';
 
@@ -129,5 +138,9 @@ export default {
   background: $white;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+[v-cloak] {
+  background: red;
 }
 </style>

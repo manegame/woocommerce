@@ -1,12 +1,13 @@
 <template>
   <div class="main">
+    <loader v-if='main.products.length === 0' />
     <router-link tag='div'
-                 v-if='main.products.length > 0'
+                 v-else
                  v-for='product in main.products'
                  :to='{name: "product", params: {slug: product.slug}}'
                  :key='product.id'
                  class="main__product">
-                   <img class="main__product__image" :src='product.images[0].src'/>
+                   <mg class="main__product__image" :source='product.images[0].src'/>
                    <h1>{{product.name}}</h1>
     </router-link>
     <cart />
@@ -15,13 +16,13 @@
 
 <script>
 import {mapState} from 'vuex'
+import mg from '@/components/base/mg'
+import loader from '@/components/base/loader'
 import cart from '@/components/cart'
 
 export default {
   name: 'mainView',
-  components: {
-    cart
-  },
+  components: { cart, mg, loader },
   props: [],
   computed: {
     ...mapState(['main'])

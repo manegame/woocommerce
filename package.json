@@ -17,6 +17,7 @@
     "babel-polyfill": "^6.26.0",
     "contentful": "^5.0.5",
     "prismic-javascript": "^1.5.0-beta.1",
+    "progressive-image": "^1.2.0",
     "raven-js": "^3.20.1",
     "vue": "^2.5.9",
     "vue-head": "^2.0.11",

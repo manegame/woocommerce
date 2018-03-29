@@ -4,6 +4,8 @@ import App from './App'
 import router from './router'
 import store from './store'
 import VueHead from 'vue-head'
+import ProgressiveImage from 'progressive-image/dist/vue'
+
 // --- GOOGLE ANALYTICS
 // import ga from 'vue-ga'
 // --- ERROR TRACKING
@@ -20,6 +22,9 @@ import VueHead from 'vue-head'
 Vue.config.productionTip = false
 
 Vue.use(VueHead)
+Vue.use(ProgressiveImage, {
+  removePreview: true
+})
 
 /* eslint-disable no-new */
 new Vue({

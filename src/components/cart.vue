@@ -2,7 +2,8 @@
   <div class="cart">
     Shoppin cart
     <ul>
-      <li v-for='item in main.cart'>
+      <li v-for='item in main.cart'
+          :key='item.id'>
         <!-- PRICE -->
         <template v-if='item.variation'>
           {{item.product.name}}<span>({{item.variation.attributes[0].option}})</span>
@@ -55,7 +56,5 @@ export default {
 .cart {
   background: rgb(199, 199, 199);
   width: 400px;
-  height: 400px;
-  overflow: scroll;
 }
 </style>

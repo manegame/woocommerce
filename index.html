@@ -11,7 +11,34 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="PWR">
+  <meta name="apple-mobile-web-app-title" content="WOOOCMMERCE WXBSHXP">
+  <style>
+    #app {
+      font-size: 30px;
+    }
+
+    #app:after {
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: bottom;
+      -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+      animation: ellipsis steps(4,end) 900ms infinite;
+      content: "\01F32C"; /* ascii code for the ellipsis character */
+      width: 0px;
+    }
+
+    @keyframes ellipsis {
+      to {
+        width: 1.25em;
+      }
+    }
+
+    @-webkit-keyframes ellipsis {
+      to {
+        width: 1.25em;
+      }
+    }
+  </style>
   <!-- STRIPE -->
   <script src="https://js.stripe.com/v3/"></script>
 </head>

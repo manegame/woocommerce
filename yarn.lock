@@ -6222,6 +6222,10 @@ progress@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.0.tgz#8a1be366bf8fc23db2bd23f10c6fe920b4389d1f"
 
+progressive-image@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/progressive-image/-/progressive-image-1.2.0.tgz#83b696684cf552bc2643aba8b0fcc05b8fc1386d"
+
 promise-inflight@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/promise-inflight/-/promise-inflight-1.0.1.tgz#98472870bf228132fcbdd868129bad12c3c029e3"
