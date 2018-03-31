@@ -7,7 +7,7 @@
     {{msg}}<br />
     billing complete: {{billingComplete}}
 
-    <form @submit.prevent='pay' @change='validate(); setShippingInfo($event);'>
+    <form @submit.prevent='pay' @change='validate(); setShippingInfo($event); setShippingZone();'>
       <fieldset id='billing'>
         <legend>Billing</legend>
         <input type="text"
@@ -287,11 +287,38 @@
               v-model='billing.phone'/>
       </fieldset>
 
-       <fieldset id='shipping'>
+      <loader v-if='!main.shippingLoaded' />
+
+       <fieldset id='shipping' v-else>
          <legend>Shipping</legend>
 
-         <input type="radio" id="one" value="One" v-model="shippingOption"><label for='one'>One</label>
-         <p>Fee: {{shippingFee}}</p>
+          To: {{selectedCountry[4]}}
+
+          <fieldset v-if='shippingZone !== null'>
+            {{shippingZone.title}}
+            <template v-for='method in shippingZone.methods'>
+              <input type='radio'
+                     :value='method.method_id'
+                     v-model='selectedShippingMethod'
+                     :key='method.method_id + "-" + method.id' />
+
+                  <span v-html='method.method_title' />
+
+                  <span v-if='method.method_id === "flat_rate"'> 
+                    €{{method.settings.cost.value}}
+                  </span>
+
+                  <span v-else-if='method.method_id === "free_shipping"'>
+                    for orders above €{{method.settings.min_amount.value}}
+                  </span>
+
+                  <span v-else-if='method.method_id === "local_pickup"'>
+                    free of course
+                  </span>
+            </template>
+          </fieldset>
+
+         <p>Continent: {{selectedCountry[0]}}</p>
          
          <input type="checkbox" v-model='sameAsBilling' /><label>Use the same address</label><br>
 
@@ -584,13 +611,15 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex'
+import { mapState, mapActions } from 'vuex'
+import loader from '@/components/base/loader'
 import cart from '@/components/cart'
 import { Card, createToken } from 'vue-stripe-elements'
 
 export default {
   name: 'checkout',
   components: {
+    loader,
     cart,
     Card
   },
@@ -628,17 +657,15 @@ export default {
         postcode: null,
         country: 'NL'
       },
-      shippingOption: 'One',
+      selectedCountry: 'NL',
+      selectedShippingMethod: null,
+      shippingLoaded: false,
+      shippingZone: null,
       shippingFee: 0
     }
   },
   computed: {
     ...mapState(['main']),
-    ...mapGetters({
-      // product: 'productById',
-      // variation: 'variationById',
-      shippingZone: 'shippingZoneFromCountry'
-    }),
     validForm() {
       console.log('computing')
       if (this.firstName === '') return false
@@ -656,8 +683,40 @@ export default {
       'PLACE_ORDER',
       'PAY_ORDER'
     ]),
+    setShippingZone() {
+      this.shippingZone = null
+      // prepare country filtering
+      this.selectedCountry = this.main.countryList.find(c => {
+        return c[1] === this.billing.country
+      })
+      const continentCode = this.selectedCountry[0]
+      const countryCode = this.selectedCountry[1]
+      // make an array which contains the id of the shipping zone and locations
+      const flat = []
+      this.main.shipping_zones.map(zone => {
+        zone.locations.forEach(location => flat.push({
+          location: location,
+          id: zone.id
+          })
+        )
+      })
+      console.log(this.billing.country, countryCode)
+      const byCountry = flat.find(item => item.location.code === countryCode)
+      const byContinent = flat.find(item => item.location.code === continentCode)
+      if (byCountry !== undefined) {
+        // try by country
+        this.shippingZone = this.main.shipping_zones.find(zone => zone.id === byCountry.id)
+      } else if (byContinent !== undefined) {
+        // try by continent
+        this.shippingZone = this.main.shipping_zones.find(zone => zone.id === byContinent.id)
+      } else {
+        this.shippingZone = this.main.shipping_zones.find(zone => zone.id === 0)
+      }
+    },
     setShippingInfo(event) {
+      // check if the user is editing shipping data
       let editingShipping = event.target.parentNode.id === 'shipping'
+      // if not, set same info as the billing address
       if (this.sameAsBilling && !editingShipping) {
         this.shipping.firstName = this.billing.firstName
         this.shipping.lastName = this.billing.lastName
@@ -667,7 +726,6 @@ export default {
         this.shipping.postcode = this.billing.postcode
         this.shipping.country = this.billing.country
       }
-      console.log('end result', this.shippingZone(this.shipping.country))
     },
     validate() {
       this.missingBilling = []

@@ -49,7 +49,8 @@ export default {
       'GET_SHIPPING_ZONE_LOCATIONS',
       'GET_SHIPPING_ZONE_METHODS',
       'GET_PRODUCT',
-      'POST_ORDER'
+      'POST_ORDER',
+      'SHIPPING_LOADED'
     ]),
     $_setMetaTags(meta = {}) {
       this.meta.title = meta.title || this.meta.defaults.title
@@ -72,6 +73,15 @@ export default {
       }
       if (route.name === 'checkout') {
         this.GET_PRODUCTS()
+        this.GET_SHIPPING_ZONES()
+          .then(() => {
+            let promises = []
+            this.main.shipping_zones.forEach((zone) => {
+              promises.push(this.GET_SHIPPING_ZONE_LOCATIONS(zone.id))
+              promises.push(this.GET_SHIPPING_ZONE_METHODS(zone.id))
+            })
+            return Promise.all(promises)
+          }).then(this.SHIPPING_LOADED)
       }
     }
   },

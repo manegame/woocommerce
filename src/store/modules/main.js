@@ -1,5 +1,6 @@
 import api from '../../service/woocommerce.js'
 import geo from '../../service/geo.js'
+import {countries} from '@/assets/countries'
 import * as actionTypes from '../actionTypes'
 import * as mutationTypes from '../mutationTypes'
 
@@ -45,13 +46,12 @@ const emptyOrder = {
 }
 
 const state = {
-  location: {},
+  countryList: countries,
   cart: [],
   products: [],
   categories: [],
+  shippingLoaded: false,
   shipping_zones: [],
-  shipping_locations: [],
-  shipping_methods: [],
   singleProduct: emptySingle,
   order: emptyOrder,
   payment: {
@@ -86,6 +86,9 @@ const actions = {
   async [actionTypes.GET_SHIPPING_ZONE_METHODS]({commit, state}, id) {
     commit(mutationTypes.SET_SHIPPING_ZONE_METHODS, await api.getShippingZoneMethods(id))
   },
+  [actionTypes.SHIPPING_LOADED]({commit}) {
+    commit(mutationTypes.SHIPPING_LOADED)
+  },
   // BUILDING THE ORDER
   [actionTypes.ADD_TO_CART]({commit, state}, data) {
     commit(mutationTypes.ADD_TO_CART, data)
@@ -115,14 +118,41 @@ const mutations = {
   [mutationTypes.SET_PRODUCT](state, data) {
     state.singleProduct.product = data
   },
+  [mutationTypes.SHIPPING_LOADED](state) {
+    state.shippingLoaded = true
+  },
   [mutationTypes.SET_SHIPPING_ZONES](state, data) {
     state.shipping_zones = data
+    // create methods and locations array to push to.
+    state.shipping_zones.map(zone => {
+      zone.methods = []
+      zone.locations = []
+    })
   },
   [mutationTypes.SET_SHIPPING_ZONE_LOCATIONS](state, data) {
-    state.shipping_locations.push(data)
+    // see shipping zone methods
+    data.forEach(item => {
+      let id = Number(item._links.describes[0].href.split('/').pop())
+      let zones = state.shipping_zones
+      zones.map(zone => {
+        if (zone.id === id) zone.locations.push(item)
+      })
+    })
   },
   [mutationTypes.SET_SHIPPING_ZONE_METHODS](state, data) {
-    state.shipping_methods.push(data)
+    // loop over each returned object
+    data.forEach(item => {
+      // get the id of the parent shipping zone from the API _links object, cast to a number for comparison
+      let id = Number(item._links.describes[0].href.split('/').pop())
+      // filter existing zones for this particular id
+      let zones = state.shipping_zones
+      // loop over the zones to check those with the found parent ID
+      zones.map(zone => {
+        if (zone.id === id) {
+          zone.methods.push(item)
+        }
+      })
+    })
   },
   [mutationTypes.SET_PRODUCT_VARIATIONS](state, data) {
     state.singleProduct.variations = data
@@ -177,15 +207,6 @@ const mutations = {
 }
 
 const getters = {
-  shippingZoneFromCountry: (state) => (countryCode) => {
-    if (state.shipping_locations.length > 0) {
-      state.shipping_locations.forEach(l => {
-        l.forEach(a => {
-          if (a.code === countryCode) console.log('found it, yu know it', a)
-        })
-      })
-    }
-  },
   productVariationByOption: (state) => (option) => {
     if (state.singleProduct.variations.length > 0) {
       return state.singleProduct.variations.find(v => v.attributes[0].option === option)
