@@ -2,7 +2,8 @@
   <div class="order_complete">
     <template>
       Thanks for buying at WEBSHXP
-      <div v-for='item in main.cart'>
+      <div v-for='item in main.cart'
+           :key='item.id'>
         <template v-if='item.variation'>
           <img :src='item.variation.image.src' />
         </template>

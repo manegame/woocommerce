@@ -62,13 +62,7 @@ export default {
     $_fetchData(route) {
       // All requests for data from the server originates from this function
       if (route.name === 'mainView') {
-        this.GET_PRODUCTS().then(() => {
-          this.main.products.forEach(p => {
-            if (p.variations.length > 0) {
-              // console.log('get variations also', p.id)
-            }
-          })
-        })
+        this.GET_PRODUCTS()
         this.GET_PRODUCT_CATEGORIES()
       }
       if (route.name === 'product') {
@@ -78,13 +72,6 @@ export default {
       }
       if (route.name === 'checkout') {
         this.GET_PRODUCTS()
-        this.GET_SHIPPING_ZONES().then(() => {
-          console.log('got shipping zones')
-          this.main.shipping_zones.forEach(z => {
-            // console.log(z)
-            this.GET_SHIPPING_ZONE_LOCATIONS(z.id)
-          })
-        })
       }
     }
   },
@@ -138,9 +125,5 @@ export default {
   background: $white;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-[v-cloak] {
-  background: red;
 }
 </style>

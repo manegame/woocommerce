@@ -15,11 +15,13 @@
       <p v-html='main.singleProduct.product.short_description'/>
       <!-- VARIABLES -->
       <div v-if='main.singleProduct.product.attributes.length > 0'>
-        <div v-for='attribute in main.singleProduct.product.attributes'>
+        <div v-for='attribute in main.singleProduct.product.attributes'
+             :key='attribute.id'>
           <form v-if='attribute.name !== ""'>
             <select v-model='selected'>
               <option disabled value=''>MAKE YOUR CHOICE</option>
               <option v-for='option in attribute.options'
+                      :key='option.id'
                       :value='option'
                       v-html='option'/>
             </select>

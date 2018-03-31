@@ -1,6 +1,5 @@
 <template>
   <div class="progressive">
-    
     <img class='preview' v-progressive='source' src="http://placehold.it/1x1"/>
   </div>
 </template>

@@ -85,7 +85,6 @@ export default {
     return new Promise((resolve, reject) => {
       WooCommerce.getAsync('shipping/zones/' + id + '/locations').then(
         response => {
-          console.log(JSON.parse(response.toJSON().body)[0])
           resolve(JSON.parse(response.toJSON().body))
         },
         response => {
@@ -122,11 +121,9 @@ export default {
     return new Promise((resolve, reject) => {
       WooCommerce.postAsync('manegame-payment', data).then(
         response => {
-          console.log('Thank you for shopping with Manegame')
           resolve(JSON.parse(response.toJSON().body))
         },
         response => {
-          console.log('payment rejected')
           reject(response)
         }
       )

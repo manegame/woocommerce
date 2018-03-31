@@ -1,4 +1,5 @@
 import api from '../../service/woocommerce.js'
+import geo from '../../service/geo.js'
 import * as actionTypes from '../actionTypes'
 import * as mutationTypes from '../mutationTypes'
 
@@ -44,6 +45,7 @@ const emptyOrder = {
 }
 
 const state = {
+  location: {},
   cart: [],
   products: [],
   categories: [],
@@ -60,6 +62,9 @@ const state = {
 
 const actions = {
   // GET TYPES
+  async [actionTypes.GET_GEO_LOCATION]({commit, state}) {
+    commit(mutationTypes.SET_GEO_LOCATION, await geo.getPosition())
+  },
   async [actionTypes.GET_PRODUCTS]({commit, state}) {
     commit(mutationTypes.SET_PRODUCTS, await api.getProducts())
   },
@@ -98,6 +103,9 @@ const actions = {
 }
 
 const mutations = {
+  [mutationTypes.SET_GEO_LOCATION](state, data) {
+    state.location = data
+  },
   [mutationTypes.SET_PRODUCTS](state, data) {
     state.products = data
   },
@@ -120,13 +128,10 @@ const mutations = {
     state.singleProduct.variations = data
   },
   [mutationTypes.ADD_TO_CART](state, data) {
-    console.log(data.product)
     state.cart.push(data)
     if (data.product.variations.length > 0) {
-      console.log('variable product', data)
       state.order.line_items.push({ product_id: data.product.id, variation_id: data.variation.id, quantity: 1 })
     } else {
-      console.log('simple product', data.product)
       state.order.line_items.push({ product_id: data.product.id, quantity: 1 })
     }
   },
@@ -164,7 +169,6 @@ const mutations = {
     }
   },
   [mutationTypes.PLACE_ORDER](state, data) {
-    console.log('data that returns from placing the order: ', data)
     state.payment.orderResponse = data
   },
   [mutationTypes.PAY_ORDER](state, data) {
