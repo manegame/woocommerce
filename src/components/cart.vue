@@ -10,10 +10,10 @@
           <span>€{{item.data.variation.price}}</span>
         </template>
         <template v-else>
-          <span>€{{item.data.product.price}}</span>
+          <span>€{{item.data.product.price}}</span><br>
         </template><span>amount: {{item.quantity}}</span>
-        <span @click='addOne(item)'>+</span>
-        <span @click='removeOne(item)'>-</span>
+        <span @click='ADD_TO_CART(item.data)'>+</span>
+        <span @click='REMOVE_FROM_CART(item.data)'>-</span>
       </li>
     </ul>
     <p>
@@ -46,10 +46,10 @@ export default {
     })
   },
   methods: {
-    ...mapActions(['ADD_TO_CART']),
-    addOne(item) {
-      this.ADD_TO_CART(item.data)
-    }
+    ...mapActions([
+      'ADD_TO_CART',
+      'REMOVE_FROM_CART'
+      ])
   }
 }
 </script>

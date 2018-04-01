@@ -87,6 +87,9 @@ const actions = {
   [actionTypes.ADD_TO_CART]({commit, state}, data) {
     commit(mutationTypes.ADD_TO_CART, data)
   },
+  [actionTypes.REMOVE_FROM_CART]({commit, state}, data) {
+    commit(mutationTypes.REMOVE_FROM_CART, data)
+  },
   [actionTypes.ADD_CUSTOMER_INFO]({commit, state}, data) {
     commit(mutationTypes.ADD_CUSTOMER_INFO, data)
   },
@@ -104,21 +107,27 @@ const actions = {
 
 const mutations = {
   [mutationTypes.SET_GEO_LOCATION](state, data) {
+    // sets geolocation to the state
     state.location = data
   },
   [mutationTypes.SET_PRODUCTS](state, data) {
+    // sets all products in state
     state.products = data
   },
   [mutationTypes.SET_PRODUCT_CATEGORIES](state, data) {
+    // sets all product categories in state
     state.categories = data
   },
   [mutationTypes.SET_PRODUCT](state, data) {
+    // sets a single product to the state
     state.singleProduct.product = data
   },
   [mutationTypes.SHIPPING_LOADED](state) {
+    // executes when all shipping actions have been accounted for
     state.shippingLoaded = true
   },
   [mutationTypes.SET_SHIPPING_ZONES](state, data) {
+    // sets all shipping zones and child arrays for upcoming data for shipping methods and locations
     state.shipping_zones = data
     // create methods and locations array to push to.
     state.shipping_zones.map(zone => {
@@ -137,7 +146,7 @@ const mutations = {
     })
   },
   [mutationTypes.SET_SHIPPING_ZONE_METHODS](state, data) {
-    // loop over each returned object
+    // see shipping zone methods
     data.forEach(item => {
       // get the id of the parent shipping zone from the API _links object, cast to a number for comparison
       let id = Number(item._links.describes[0].href.split('/').pop())
@@ -155,6 +164,11 @@ const mutations = {
     state.singleProduct.variations = data
   },
   [mutationTypes.ADD_TO_CART](state, data) {
+    // adds to the cart and updates order.
+    // pass this function an object with a minimum of product and quantity
+    // e.g:
+    // wcProduct and wcVariation are ibjects returned by WC REST
+    // { product: wcProduct, variation: wcVariation, quantity: 1 }
     let isVariable = false
     // check each property to see if variable
     for (let item in data) {
@@ -211,7 +225,55 @@ const mutations = {
       }
     }
   },
+  [mutationTypes.REMOVE_FROM_CART](state, data) {
+    let isVariable = false
+    // check each property to see if variable
+    for (let item in data) {
+      if (data.hasOwnProperty(item)) {
+        if (item === 'variation') isVariable = true
+      }
+    }
+    if (isVariable) {
+      let item = state.cart.find(item => { return item.data.variation.id === data.variation.id })
+      if (item.quantity > 1) { // should always exist, though..
+        // item variable product
+        // 1. remove from order
+        state.order.line_items.map(li => {
+          if (li.variation_id === data.variation.id) li.quantity--
+        })
+        // 2. remove from cart
+        item.quantity--
+      } else {
+        // 1. remove from order
+        let removeOrder = state.order.line_items.filter(li => { return li.variation_id === data.variation.id })
+        let orderIndex = state.order.line_items.indexOf(removeOrder[0])
+        if (orderIndex > -1) state.order.line_items.splice(orderIndex, 1) // this does the deletion
+        // 2. remove from cart
+        let removeCart = state.cart.filter(i => { return i.data.variation.id === data.variation.id })
+        let cartIndex = state.cart.indexOf(removeCart[0])
+        if (cartIndex > -1) state.cart.splice(cartIndex, 1)
+      }
+    } else {
+      let item = state.cart.find(item => { return item.data.product.id === data.product.id }) 
+      if (item.quantity > 1) {
+        state.order.line_items.map(li => {
+          if (li.product_id === data.product.id) li.quantity--
+        })
+        item.quantity--
+      } else {
+        // 1. remove from order
+        let removeOrder = state.order.line_items.filter(li => { return li.product_id === data.product.id })
+        let orderIndex = state.order.line_items.indexOf(removeOrder[0])
+        if (orderIndex > -1) state.order.line_items.splice(orderIndex, 1) // this does the deletion
+        // 2. remove from cart
+        let removeCart = state.cart.filter(i => { return i.data.product.id === data.product.id })
+        let cartIndex = state.cart.indexOf(removeCart[0])
+        if (cartIndex > -1) state.cart.splice(cartIndex, 1)        
+      }
+    }
+  },
   [mutationTypes.ADD_CUSTOMER_INFO](state, data) {
+    // TODO clean up the state so this mumbo jumbo is not necessary
     let b = state.order.billing
     let s = state.order.shipping
     let sl = state.order.shipping_lines
@@ -234,9 +296,11 @@ const mutations = {
     if (data.shipping_line) { sl.push(data.shipping_line) }
   },
   [mutationTypes.PLACE_ORDER](state, data) {
+    // set the response data of the post request to the state
     state.payment.orderResponse = data
   },
   [mutationTypes.PAY_ORDER](state, data) {
+    // pay order, set progress to the returned value
     state.payment.progress = data
   }
 }
