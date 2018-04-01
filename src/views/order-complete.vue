@@ -4,10 +4,10 @@
       Thanks for buying at WEBSHXP
       <div v-for='item in main.cart'
            :key='item.id'>
-        <template v-if='item.variation'>
-          <img :src='item.variation.image.src' />
+        <template v-if='item.data.variation'>
+          <img :src='item.data.variation.image.src' />
         </template>
-        <img v-else :src='item.product.images[0].src'/>
+        <img v-else :src='item.data.product.images[0].src'/>
       </div>
       <router-link :to='{ name: "mainView" }'>home</router-link>
     </template>

@@ -3,16 +3,15 @@
     Shoppin cart
     <ul>
       <li v-for='item in main.cart'
-          :key='item.id'>
+          :key='item.data.id'>
         <!-- PRICE -->
-        <template v-if='item.variation'>
-          {{item.product.name}}<span>({{item.variation.attributes[0].option}})</span>
-          <span>€{{item.variation.price}}</span>
+        <template v-if='item.data.variation'>
+          {{item.data.product.name}}<span>({{item.data.variation.attributes[0].option}})</span>
+          <span>€{{item.data.variation.price}}</span>
         </template>
         <template v-else>
-          <span>€{{item.product.price}}</span>
-        </template>
-        <span>{{item.quantity}}</span>
+          <span>€{{item.data.product.price}}</span>
+        </template><span>amount: {{item.quantity}}</span>
         <span @click='addOne(item)'>+</span>
         <span @click='removeOne(item)'>-</span>
       </li>
@@ -49,7 +48,7 @@ export default {
   methods: {
     ...mapActions(['ADD_TO_CART']),
     addOne(item) {
-      this.ADD_TO_CART(item)
+      this.ADD_TO_CART(item.data)
     }
   }
 }

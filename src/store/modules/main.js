@@ -155,27 +155,60 @@ const mutations = {
     state.singleProduct.variations = data
   },
   [mutationTypes.ADD_TO_CART](state, data) {
-    // check if the state already has an item with this product id
-    let existingVariableProduct, existingProduct
-    if (data.variation !== undefined) {
-      existingVariableProduct = state.order.line_items.find(item => item.variation_id === data.variation.id)
-    } else {
-      existingProduct = state.order.line_items.find(item => item.product_id === data.product.id)
+    let isVariable = false
+    // check each property to see if variable
+    for (let item in data) {
+      if (data.hasOwnProperty(item)) {
+        if (item === 'variation') isVariable = true
+      }
     }
-
-    if (existingVariableProduct === undefined) {
-      state.cart.push(data)
-      // Add new order for variable product
-      state.order.line_items.push({ product_id: data.product.id, variation_id: data.variation.id, quantity: 1 })
-    } else if (existingProduct === undefined) {
-      state.cart.push(data)
-      // Add new order for normal product
-      state.order.line_items.push({ product_id: data.product.id, quantity: 1 })
+    if (isVariable) {
+      let existing = state.cart.find(item => { return item.data.variation.id === data.variation.id })
+      if (existing !== undefined) {
+        // existing variable product
+        // 1. add to order
+        state.order.line_items.map(li => {
+          if (li.variation_id === data.variation.id) li.quantity++
+        })
+        // 2. add to cart
+        existing.quantity++
+      } else {
+        // new variable product
+        // 1. add to order
+        state.order.line_items.push({
+          product_id: data.product.id,
+          quantity: 1,
+          variation_id: data.variation.id
+        })
+        // 2. add to cart
+        state.cart.push({
+          data: data,
+          quantity: 1
+        })
+      }
     } else {
-      // add one to existing product
-      state.cart.push(data)
-      if (existingVariableProduct) existingVariableProduct.quantity++
-      else existingProduct.quantity++
+      let existing = state.cart.find(item => { return item.data.product.id === data.product.id })
+      if (existing !== undefined) {
+        // existing simple product
+        // 1. add to order
+        state.order.line_items.map(li => {
+          if (li.product_id === data.product.id) li.quantity++
+        })
+        // 2. add to cart
+        existing.quantity++
+      } else {
+        // new simple product
+        // 1. add to order
+        state.order.line_items.push({
+          product_id: data.product.id,
+          quantity: 1
+        })
+        // 2. add to cart
+        state.cart.push({
+          data: data,
+          quantity: 1
+        })
+      }
     }
   },
   [mutationTypes.ADD_CUSTOMER_INFO](state, data) {
@@ -221,16 +254,13 @@ const getters = {
   },
   cartTotal: (state) => {
     let total = 0
-    state.order.line_items.map(line => {
-      total += Number(line.price * line.quantity)
+    state.cart.map(i => {
+      if (i.data.variation) {
+        total += Number(i.data.variation.price * i.quantity)
+      } else {
+        total += Number(i.data.product.price * i.quantity)
+      }
     })
-    // state.cart.map(i => {
-    //   if (i.variation) {
-    //     total += Number(i.variation.price)
-    //   } else {
-    //     total += Number(i.product.price)
-    //   }
-    // })
     return total
   }
 }
