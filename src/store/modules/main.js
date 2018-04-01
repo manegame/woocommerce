@@ -273,8 +273,8 @@ const mutations = {
     }
   },
   [mutationTypes.SET_SHIPPING](state, data) {
-    console.log('set shipping')
-    state.order.shipping_lines[0] = data
+    state.order.shipping_lines.splice(0, 1)
+    state.order.shipping_lines.push(data)
   },
   [mutationTypes.ADD_CUSTOMER_INFO](state, data) {
     // TODO clean up the state so this mumbo jumbo is not necessary
@@ -322,10 +322,17 @@ const getters = {
     } else return false
   },
   shippingTotal: (state) => {
-    console.log('when you update me')
-    return state.order.shipping_lines.reduce((acc, cur) => {
-      acc += Number(cur.total)
-    }, 10)
+    if (state.order.shipping_lines.length > 0) {
+      let total = 0
+      state.order.shipping_lines.map(line => {
+        if (line.total) {
+          total += Number(line.total)
+        } else {
+          total += 0
+        }
+      })
+      return total
+    } else return 0
   },
   cartTotal: (state) => {
     let total = 0

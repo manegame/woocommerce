@@ -50,11 +50,6 @@ export default {
       'ADD_TO_CART',
       'REMOVE_FROM_CART'
     ])
-  },
-  watch: {
-    shippingTotal(newV, oldV) {
-      console.log('new value', newV, oldV)
-    }
   }
 }
 </script>
