@@ -12,8 +12,9 @@
         <template v-else>
           <span>€{{item.product.price}}</span>
         </template>
-        <!-- SHIPPING -->
-        <span></span>
+        <span>{{item.quantity}}</span>
+        <span @click='addOne(item)'>+</span>
+        <span @click='removeOne(item)'>-</span>
       </li>
     </ul>
     <p>
@@ -29,7 +30,7 @@
 </template>
 
 <script>
-import {mapState, mapGetters} from 'vuex'
+import {mapState, mapGetters, mapActions} from 'vuex'
 export default {
   name: 'cart',
   data() {
@@ -44,6 +45,12 @@ export default {
       // Code that will run only after the
       // entire view has been re-rendered
     })
+  },
+  methods: {
+    ...mapActions(['ADD_TO_CART']),
+    addOne(item) {
+      this.ADD_TO_CART(item)
+    }
   }
 }
 </script>

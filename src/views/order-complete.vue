@@ -7,7 +7,7 @@
         <template v-if='item.variation'>
           <img :src='item.variation.image.src' />
         </template>
-        <img v-else :src='item.product.image.src'/>
+        <img v-else :src='item.product.images[0].src'/>
       </div>
       <router-link :to='{ name: "mainView" }'>home</router-link>
     </template>

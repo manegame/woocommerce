@@ -300,20 +300,24 @@
               <input type='radio'
                      :value='method.method_id'
                      v-model='selectedShippingMethod'
+                     :disabled='method.method_id === "free_shipping" && main.cartTotal < method.settings.min_amount.value'
                      :key='method.method_id + "-" + method.id' />
 
-                  <span v-html='method.method_title' />
+                  <span :key='method.method_title + "-" + method_id' v-html='method.method_title' />
 
-                  <span v-if='method.method_id === "flat_rate"'> 
+                  <span v-if='method.method_id === "flat_rate"'
+                        :key='"fl" + method.method_id'>
                     €{{method.settings.cost.value}}
                   </span>
 
-                  <span v-else-if='method.method_id === "free_shipping"'>
-                    for orders above €{{method.settings.min_amount.value}}
+                  <span v-else-if='method.method_id === "local_pickup"'
+                        :key='"local" + method.method_id'>
+                    free of course
                   </span>
 
-                  <span v-else-if='method.method_id === "local_pickup"'>
-                    free of course
+                  <span v-else-if='method.method_id === "free_shipping"'
+                        :key='"free" + method.method_id'>
+                    for orders above €{{method.settings.min_amount.value}}
                   </span>
             </template>
           </fieldset>
@@ -626,7 +630,6 @@ export default {
   data() {
     return {
       msg: '',
-      errors: [],
       billingComplete: false,
       complete: false,
       stripeOptions: {
@@ -659,6 +662,10 @@ export default {
       },
       selectedCountry: 'NL',
       selectedShippingMethod: null,
+      shipping_line: {
+        method_id: null,
+        method_title: null
+      },
       shippingLoaded: false,
       shippingZone: null,
       shippingFee: 0
@@ -680,6 +687,7 @@ export default {
   methods: {
     ...mapActions([
       'ADD_CUSTOMER_INFO',
+      'ADD_SHIPPING',
       'PLACE_ORDER',
       'PAY_ORDER'
     ]),
@@ -687,20 +695,15 @@ export default {
       this.shippingZone = null
       // prepare country filtering
       this.selectedCountry = this.main.countryList.find(c => {
-        return c[1] === this.billing.country
+        return c[1] === this.shipping.country
       })
       const continentCode = this.selectedCountry[0]
       const countryCode = this.selectedCountry[1]
       // make an array which contains the id of the shipping zone and locations
       const flat = []
       this.main.shipping_zones.map(zone => {
-        zone.locations.forEach(location => flat.push({
-          location: location,
-          id: zone.id
-          })
-        )
+        zone.locations.forEach(location => flat.push({ location: location, id: zone.id }))
       })
-      console.log(this.billing.country, countryCode)
       const byCountry = flat.find(item => item.location.code === countryCode)
       const byContinent = flat.find(item => item.location.code === continentCode)
       if (byCountry !== undefined) {
@@ -726,6 +729,14 @@ export default {
         this.shipping.postcode = this.billing.postcode
         this.shipping.country = this.billing.country
       }
+      if (this.selectedShippingMethod !== null) {
+        const method = this.shippingZone.methods.find(m => m.method_id === this.selectedShippingMethod)
+        this.shipping_line.method_id = method.method_id
+        this.shipping_line.method_title = method.method_title
+        if (method.method_id !== 'free_shipping') {
+          this.shipping_line.total = method.settings.cost.value
+        }
+      }
     },
     validate() {
       this.missingBilling = []
@@ -738,8 +749,12 @@ export default {
       else this.billingComplete = false
     },
     pay() {
-      let data = { billing: this.billing, shipping: this.shipping }
-      this.ADD_CUSTOMER_INFO(data).then(() => {
+      // let data = { billing: this.billing, shipping: this.shipping }
+      this.ADD_CUSTOMER_INFO({
+        billing: this.billing,
+        shipping: this.shipping,
+        shipping_line: this.shipping_line
+      }).then(() => {
         console.log('added customer info')
         this.complete = false
         this.msg = 'hold on, placing order...'
@@ -748,15 +763,14 @@ export default {
           return
         }
         this.msg = 'hold on, processing payment...'
+        console.log(this.main.order)
         this.PLACE_ORDER(this.main.order).then(() => {
-          if (this.main.payment.orderResponse.code === 'rest_invalid_param') {
-            this.msg = 'please check if you\'ve filled in your infos correctly'
-            // console.log(this.main.orderResponse)
+          if (this.main.payment.orderResponse.message) {
+            this.msg = 'sorry, something went wrong. Please refresh and try again...'
             return
           }
           createToken().then(result => {
             if (result.token) {
-              console.log(result.token)
               let data = {
                 order_id: this.main.payment.orderResponse.id,
                 payment_token: result.token.id,
@@ -768,7 +782,7 @@ export default {
 
                 }
                 if (this.main.payment.progress.code === 200) {
-                  console.log('payment complete')
+                  // redirect user
                   this.$router.push({ name: 'order-complete' })
                 }
               })

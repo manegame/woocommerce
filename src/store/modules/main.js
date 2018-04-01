@@ -36,13 +36,7 @@ const emptyOrder = {
     country: ''
   },
   line_items: [],
-  shipping_lines: [
-    {
-      method_id: 'flat_rate',
-      method_title: 'Flat rate',
-      total: '10'
-    }
-  ]
+  shipping_lines: []
 }
 
 const state = {
@@ -95,6 +89,9 @@ const actions = {
   },
   [actionTypes.ADD_CUSTOMER_INFO]({commit, state}, data) {
     commit(mutationTypes.ADD_CUSTOMER_INFO, data)
+  },
+  [actionTypes.ADD_SHIPPING]({commit, state}, data) {
+    commit(mutationTypes.ADD_SHIPPING, data)
   },
   // PROCESSING THE ORDER
   async [actionTypes.PLACE_ORDER]({commit, state}, order) {
@@ -158,45 +155,50 @@ const mutations = {
     state.singleProduct.variations = data
   },
   [mutationTypes.ADD_TO_CART](state, data) {
-    state.cart.push(data)
-    if (data.product.variations.length > 0) {
-      state.order.line_items.push({ product_id: data.product.id, variation_id: data.variation.id, quantity: 1 })
+    // check if the state already has an item with this product id
+    let existingVariableProduct, existingProduct
+    if (data.variation !== undefined) {
+      existingVariableProduct = state.order.line_items.find(item => item.variation_id === data.variation.id)
     } else {
+      existingProduct = state.order.line_items.find(item => item.product_id === data.product.id)
+    }
+
+    if (existingVariableProduct === undefined) {
+      state.cart.push(data)
+      // Add new order for variable product
+      state.order.line_items.push({ product_id: data.product.id, variation_id: data.variation.id, quantity: 1 })
+    } else if (existingProduct === undefined) {
+      state.cart.push(data)
+      // Add new order for normal product
       state.order.line_items.push({ product_id: data.product.id, quantity: 1 })
+    } else {
+      // add one to existing product
+      state.cart.push(data)
+      if (existingVariableProduct) existingVariableProduct.quantity++
+      else existingProduct.quantity++
     }
   },
   [mutationTypes.ADD_CUSTOMER_INFO](state, data) {
     let b = state.order.billing
     let s = state.order.shipping
-    let same = data.sameAsBilling
-    if (same) {
-      b.address_1 = data.billing.address
-      b.first_name = s.first_name = data.billing.firstName
-      b.last_name = s.last_name = data.billing.lastName
-      b.city = s.city = data.billing.city
-      b.state = s.state = data.billing.state
-      b.postcode = s.postcode = data.billing.postcode
-      b.country = s.country = data.billing.country
-      b.email = data.billing.email
-      b.phone = data.billing.phone
-    } else {
-      b.address_1 = data.billing.address
-      b.first_name = data.billing.firstName
-      b.last_name = data.billing.lastName
-      b.city = data.billing.city
-      b.state = data.billing.state
-      b.postcode = data.billing.postcode
-      b.country = data.billing.country
-      b.email = data.billing.email
-      b.phone = data.billing.phone
-      s.address_1 = data.shipping.address
-      s.first_name = data.shipping.firstName
-      s.last_name = data.shipping.lastName
-      s.city = data.shipping.city
-      s.state = data.shipping.state
-      s.postcode = data.shipping.postcode
-      s.country = data.shipping.country
-    }
+    let sl = state.order.shipping_lines
+    b.address_1 = data.billing.address
+    b.first_name = data.billing.firstName
+    b.last_name = data.billing.lastName
+    b.city = data.billing.city
+    b.state = data.billing.state
+    b.postcode = data.billing.postcode
+    b.country = data.billing.country
+    b.email = data.billing.email
+    b.phone = data.billing.phone
+    s.address_1 = data.shipping.address
+    s.first_name = data.shipping.firstName
+    s.last_name = data.shipping.lastName
+    s.city = data.shipping.city
+    s.state = data.shipping.state
+    s.postcode = data.shipping.postcode
+    s.country = data.shipping.country
+    if (data.shipping_line) { sl.push(data.shipping_line) }
   },
   [mutationTypes.PLACE_ORDER](state, data) {
     state.payment.orderResponse = data
@@ -219,13 +221,16 @@ const getters = {
   },
   cartTotal: (state) => {
     let total = 0
-    state.cart.map(i => {
-      if (i.variation) {
-        total += Number(i.variation.price)
-      } else {
-        total += Number(i.product.price)
-      }
+    state.order.line_items.map(line => {
+      total += Number(line.price * line.quantity)
     })
+    // state.cart.map(i => {
+    //   if (i.variation) {
+    //     total += Number(i.variation.price)
+    //   } else {
+    //     total += Number(i.product.price)
+    //   }
+    // })
     return total
   }
 }
