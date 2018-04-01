@@ -287,38 +287,50 @@
               v-model='billing.phone'/>
       </fieldset>
 
-      <loader v-if='!main.shippingLoaded' />
+      <loader v-if='!shippingLoaded' />
 
        <fieldset id='shipping' v-else>
          <legend>Shipping</legend>
 
-          To: {{selectedCountry[4]}}
-
           <fieldset v-if='shippingZone !== null'>
-            {{shippingZone.title}}
-            <template v-for='method in shippingZone.methods'>
-              <input type='radio'
-                     :value='method.method_id'
-                     v-model='selectedShippingMethod'
-                     :disabled='method.method_id === "free_shipping" && main.cartTotal < method.settings.min_amount.value'
-                     :key='method.method_id + "-" + method.id' />
+            Shipping to: {{shippingZone.name}} <br/>
+            <template v-for='(method, index) in shippingZone.methods'>
+              
+              <!-- Flat Rate -->
+              <template v-if='method.method_id === "flat_rate"'>
+                <input type='radio' 
+                       :id='index' 
+                       :value='method.method_id' 
+                       v-model='selectedShippingMethod' 
+                       :key='index'/>
+                <label :key='"fl-" + index' 
+                       v-html='method.method_title' />
+                €{{method.settings.cost.value}}
+              </template>
 
-                  <span :key='method.method_title + "-" + method_id' v-html='method.method_title' />
+              <!-- Local Pickup -->
+              <template v-if='method.method_id === "local_pickup"'>
+                <input type='radio' 
+                       :id='index' 
+                       :value='method.method_id'
+                       v-model='selectedShippingMethod' 
+                       :key='index'/>
+                <label :key='"lp-" + index' 
+                       v-html='method.method_title' />
+              </template>
 
-                  <span v-if='method.method_id === "flat_rate"'
-                        :key='"fl" + method.method_id'>
-                    €{{method.settings.cost.value}}
-                  </span>
-
-                  <span v-else-if='method.method_id === "local_pickup"'
-                        :key='"local" + method.method_id'>
-                    free of course
-                  </span>
-
-                  <span v-else-if='method.method_id === "free_shipping"'
-                        :key='"free" + method.method_id'>
-                    for orders above €{{method.settings.min_amount.value}}
-                  </span>
+              <!-- Free Shipping -->
+              <template v-if='method.method_id === "free_shipping"'>
+                <input type='radio' 
+                       :id='index' 
+                       :value='method.method_id'
+                       :disabled='cartTotal < method.settings.min_amount.value'
+                       v-model='selectedShippingMethod' 
+                       :key='index'/>
+                <label :key='"fs-" + index' 
+                       v-html='method.method_title' />
+                for orders above €{{method.settings.min_amount.value}}
+              </template>
             </template>
           </fieldset>
 
@@ -615,7 +627,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
 import loader from '@/components/base/loader'
 import cart from '@/components/cart'
 import { Card, createToken } from 'vue-stripe-elements'
@@ -666,33 +678,32 @@ export default {
         method_id: null,
         method_title: null
       },
-      shippingLoaded: false,
       shippingZone: null,
       shippingFee: 0
     }
   },
   computed: {
     ...mapState(['main']),
+    ...mapGetters({
+      shippingLoaded: 'shippingLoadedState',
+      cartTotal: 'cartTotal'
+    }),
     validForm() {
       console.log('computing')
       if (this.firstName === '') return false
     }
   },
-  mounted: function() {
-    this.$nextTick(function() {
-      // Code that will run only after the
-      // entire view has been re-rendered
-    })
+  mounted() {
+    this.setShippingZone()
   },
   methods: {
     ...mapActions([
       'ADD_CUSTOMER_INFO',
-      'ADD_SHIPPING',
+      'SET_SHIPPING',
       'PLACE_ORDER',
       'PAY_ORDER'
     ]),
     setShippingZone() {
-      this.shippingZone = null
       // prepare country filtering
       this.selectedCountry = this.main.countryList.find(c => {
         return c[1] === this.shipping.country
@@ -736,6 +747,7 @@ export default {
         if (method.method_id !== 'free_shipping') {
           this.shipping_line.total = method.settings.cost.value
         }
+        this.SET_SHIPPING(this.shipping_line)
       }
     },
     validate() {
@@ -749,11 +761,11 @@ export default {
       else this.billingComplete = false
     },
     pay() {
-      // let data = { billing: this.billing, shipping: this.shipping }
+      // shipping and line items are already set...
       this.ADD_CUSTOMER_INFO({
         billing: this.billing,
-        shipping: this.shipping,
-        shipping_line: this.shipping_line
+        shipping: this.shipping
+        // shipping_line: this.shipping_line
       }).then(() => {
         console.log('added customer info')
         this.complete = false
@@ -793,6 +805,14 @@ export default {
           })
         })
       })
+    }
+  },
+  watch: {
+    shippingLoaded(newV, oldV) {
+      if (newV) {
+        // if evals to true, shipping has loaded
+        this.setShippingZone()
+      }
     }
   }
 }

@@ -93,8 +93,8 @@ const actions = {
   [actionTypes.ADD_CUSTOMER_INFO]({commit, state}, data) {
     commit(mutationTypes.ADD_CUSTOMER_INFO, data)
   },
-  [actionTypes.ADD_SHIPPING]({commit, state}, data) {
-    commit(mutationTypes.ADD_SHIPPING, data)
+  [actionTypes.SET_SHIPPING]({commit, state}, data) {
+    commit(mutationTypes.SET_SHIPPING, data)
   },
   // PROCESSING THE ORDER
   async [actionTypes.PLACE_ORDER]({commit, state}, order) {
@@ -254,7 +254,7 @@ const mutations = {
         if (cartIndex > -1) state.cart.splice(cartIndex, 1)
       }
     } else {
-      let item = state.cart.find(item => { return item.data.product.id === data.product.id }) 
+      let item = state.cart.find(item => { return item.data.product.id === data.product.id })
       if (item.quantity > 1) {
         state.order.line_items.map(li => {
           if (li.product_id === data.product.id) li.quantity--
@@ -268,9 +268,13 @@ const mutations = {
         // 2. remove from cart
         let removeCart = state.cart.filter(i => { return i.data.product.id === data.product.id })
         let cartIndex = state.cart.indexOf(removeCart[0])
-        if (cartIndex > -1) state.cart.splice(cartIndex, 1)        
+        if (cartIndex > -1) state.cart.splice(cartIndex, 1)
       }
     }
+  },
+  [mutationTypes.SET_SHIPPING](state, data) {
+    console.log('set shipping')
+    state.order.shipping_lines[0] = data
   },
   [mutationTypes.ADD_CUSTOMER_INFO](state, data) {
     // TODO clean up the state so this mumbo jumbo is not necessary
@@ -306,6 +310,7 @@ const mutations = {
 }
 
 const getters = {
+  shippingLoadedState: state => state.shippingLoaded,
   productVariationByOption: (state) => (option) => {
     if (state.singleProduct.variations.length > 0) {
       return state.singleProduct.variations.find(v => v.attributes[0].option === option)
@@ -315,6 +320,12 @@ const getters = {
     if (state.products.length > 0) {
       return state.products.find(p => p.id === id)
     } else return false
+  },
+  shippingTotal: (state) => {
+    console.log('when you update me')
+    return state.order.shipping_lines.reduce((acc, cur) => {
+      acc += Number(cur.total)
+    }, 10)
   },
   cartTotal: (state) => {
     let total = 0

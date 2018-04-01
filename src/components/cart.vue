@@ -16,12 +16,9 @@
         <span @click='REMOVE_FROM_CART(item.data)'>-</span>
       </li>
     </ul>
-    <p>
-      Total: {{cartTotal}}<br />
-    </p>
-    <p>
-      Shipping:
-    </p>
+    <p>Items: {{cartTotal}}</p>
+    <p>Shipping: {{shippingTotal}}</p>
+    <p>Total: {{total}}</p>
     <router-link v-if='$route.name !== "checkout"'
                  tag='button'
                  :to="{ name: 'checkout' }">Checkout</router-link>
@@ -37,7 +34,10 @@ export default {
   },
   computed: {
     ...mapState(['main']),
-    ...mapGetters(['cartTotal'])
+    ...mapGetters(['cartTotal', 'shippingTotal']),
+    total() {
+      return this.cartTotal + this.shippingTotal
+    }
   },
   mounted: function() {
     this.$nextTick(function() {
@@ -49,7 +49,12 @@ export default {
     ...mapActions([
       'ADD_TO_CART',
       'REMOVE_FROM_CART'
-      ])
+    ])
+  },
+  watch: {
+    shippingTotal(newV, oldV) {
+      console.log('new value', newV, oldV)
+    }
   }
 }
 </script>
