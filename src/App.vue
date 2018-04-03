@@ -30,7 +30,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['main'])
+    ...mapState(['shop'])
   },
   watch: {
     $route(to, from) {
@@ -63,13 +63,13 @@ export default {
     },
     $_fetchData(route) {
       // All requests for data from the server originates from this function
-      if (route.name === 'mainView') {
+      if (route.name === 'shopView') {
         this.GET_PRODUCTS()
         this.GET_PRODUCT_CATEGORIES()
       }
       if (route.name === 'product') {
         this.GET_PRODUCT(route.params.slug).then(() => {
-          this.GET_PRODUCT_VARIATIONS(this.main.singleProduct.product.id)
+          this.GET_PRODUCT_VARIATIONS(this.shop.singleProduct.product.id)
         })
       }
       if (route.name === 'checkout') {
@@ -77,7 +77,7 @@ export default {
         this.GET_SHIPPING_ZONES()
           .then(() => {
             let promises = []
-            this.main.shipping_zones.forEach((zone) => {
+            this.shop.shipping_zones.forEach((zone) => {
               promises.push(this.GET_SHIPPING_ZONE_LOCATIONS(zone.id))
               promises.push(this.GET_SHIPPING_ZONE_METHODS(zone.id))
             })

@@ -1,8 +1,7 @@
 import api from '../../service/woocommerce.js'
-import geo from '../../service/geo.js'
 import {countries} from '@/assets/countries'
-import * as actionTypes from '../actionTypes'
-import * as mutationTypes from '../mutationTypes'
+import * as actionTypes from '../shop/actionTypes'
+import * as mutationTypes from '../shop/mutationTypes'
 
 const emptySingle = {
   product: '',
@@ -55,10 +54,6 @@ const state = {
 }
 
 const actions = {
-  // GET TYPES
-  async [actionTypes.GET_GEO_LOCATION]({commit, state}) {
-    commit(mutationTypes.SET_GEO_LOCATION, await geo.getPosition())
-  },
   async [actionTypes.GET_PRODUCTS]({commit, state}) {
     commit(mutationTypes.SET_PRODUCTS, await api.getProducts())
   },
@@ -109,10 +104,6 @@ const actions = {
 }
 
 const mutations = {
-  [mutationTypes.SET_GEO_LOCATION](state, data) {
-    // sets geolocation to the state
-    state.location = data
-  },
   [mutationTypes.SET_PRODUCTS](state, data) {
     // sets all products in state
     state.products = data

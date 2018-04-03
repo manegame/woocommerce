@@ -1,9 +1,9 @@
 <template>
   <div class="main">
-    <loader v-if='main.products.length === 0' element='images'/>
+    <loader v-if='shop.products.length === 0' element='images'/>
     <router-link tag='div'
                  v-else
-                 v-for='product in main.products'
+                 v-for='product in shop.products'
                  :to='{name: "product", params: {slug: product.slug}}'
                  :key='product.id'
                  class="main__product">
@@ -24,7 +24,7 @@ export default {
   components: { cart, loader },
   props: [],
   computed: {
-    ...mapState(['main'])
+    ...mapState(['shop'])
   },
   mounted() {},
   updated: function() {

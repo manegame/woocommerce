@@ -2,7 +2,7 @@
   <div class="cart">
     Shoppin cart
     <ul>
-      <li v-for='item in main.cart'
+      <li v-for='item in shop.cart'
           :key='item.data.id'>
         <!-- PRICE -->
         <template v-if='item.data.variation'>
@@ -35,7 +35,7 @@ export default {
     return {}
   },
   computed: {
-    ...mapState(['main']),
+    ...mapState(['shop']),
     ...mapGetters(['cartTotal', 'shippingTotal']),
     total() {
       return this.cartTotal + this.shippingTotal

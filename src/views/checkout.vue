@@ -26,7 +26,7 @@
               placeholder='postcode'
               v-model='billing.postcode'/><br />
         <select v-model='billing.country'>
-          <option v-for='country in main.countryList' 
+          <option v-for='country in shop.countryList' 
                   :value='country[1]'
                   :key='"billing-"+country[1]+"-"+country[3]'
                   v-html='country[4]' />
@@ -64,7 +64,7 @@
                   placeholder='postcode'
                   v-model='shipping.postcode'/><br />
         <select v-model='shipping.country'>
-          <option v-for='country in main.countryList' 
+          <option v-for='country in shop.countryList' 
                   :value='country[1]'
                   :key='"shipping-"+country[1]+"-"+country[3]'
                   v-html='country[4]' />
@@ -184,7 +184,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['main']),
+    ...mapState(['shop']),
     ...mapGetters({
       shippingLoaded: 'shippingLoadedState',
       cartTotal: 'cartTotal'
@@ -229,12 +229,12 @@ export default {
     setShippingZone(event) {
       console.log(3, event)
       // prepare country filtering
-      this.selectedCountry = this.main.countryList.find(c => { return c[1] === this.shipping.country })
+      this.selectedCountry = this.shop.countryList.find(c => { return c[1] === this.shipping.country })
       const continentCode = this.selectedCountry[0]
       const countryCode = this.selectedCountry[1]
       // make an array which contains the id of the shipping zone and locations
       const flatData = []
-      this.main.shipping_zones.map(zone => {
+      this.shop.shipping_zones.map(zone => {
         zone.locations.forEach(location => flatData.push({ location: location, id: zone.id }))
       })
       const byCountry = flatData.find(item => item.location.code === countryCode)
@@ -242,13 +242,13 @@ export default {
       // set shippingZone
       if (byCountry !== undefined) {
         // try by country
-        this.shippingZone = this.main.shipping_zones.find(zone => zone.id === byCountry.id)
+        this.shippingZone = this.shop.shipping_zones.find(zone => zone.id === byCountry.id)
       } else if (byContinent !== undefined) {
         // try by continent
-        this.shippingZone = this.main.shipping_zones.find(zone => zone.id === byContinent.id)
+        this.shippingZone = this.shop.shipping_zones.find(zone => zone.id === byContinent.id)
       } else {
         // set to `other`
-        this.shippingZone = this.main.shipping_zones.find(zone => zone.id === 0)
+        this.shippingZone = this.shop.shipping_zones.find(zone => zone.id === 0)
       }
       if (event !== undefined && event.srcElement.parentElement.id !== 'shipping_methods') {
         console.log('set from setShippingZone')
@@ -299,25 +299,25 @@ export default {
           return
         }
         this.msg = 'hold on, processing payment...'
-        console.log(this.main.order)
-        this.PLACE_ORDER(this.main.order).then(() => {
-          if (this.main.payment.orderResponse.message) {
+        console.log(this.shop.order)
+        this.PLACE_ORDER(this.shop.order).then(() => {
+          if (this.shop.payment.orderResponse.message) {
             this.msg = 'sorry, something went wrong. Please refresh and try again...'
             return
           }
           createToken().then(result => {
             if (result.token) {
               let data = {
-                order_id: this.main.payment.orderResponse.id,
+                order_id: this.shop.payment.orderResponse.id,
                 payment_token: result.token.id,
                 payment_method: 'stripe'
               }
               this.PAY_ORDER(data).then(() => {
-                this.msg = this.main.payment.progress.message
-                if (this.main.payment.progress.code === 405) {
+                this.msg = this.shop.payment.progress.message
+                if (this.shop.payment.progress.code === 405) {
 
                 }
-                if (this.main.payment.progress.code === 200) {
+                if (this.shop.payment.progress.code === 200) {
                   // redirect user
                   this.$router.push({ name: 'order-complete' })
                 }

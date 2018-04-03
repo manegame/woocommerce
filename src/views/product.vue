@@ -1,6 +1,6 @@
 <template>
   <div class="product">
-    <template v-if='main.singleProduct.product !== ""'>
+    <template v-if='shop.singleProduct.product !== ""'>
       <!-- VARIABLE PRODUCTS -->
       <template v-if='variableProduct && selected !== ""'>
         <img :src='variation(selected).image.src' />
@@ -8,14 +8,14 @@
       </template>
       <!-- SIMPLE PRODUCTS -->
       <template v-else>
-        <img :src='main.singleProduct.product.images[0].src' />
-        <p>€{{main.singleProduct.product.price}}</p>
+        <img :src='shop.singleProduct.product.images[0].src' />
+        <p>€{{shop.singleProduct.product.price}}</p>
       </template>
       <!-- DESCRIPTION ETC. -->
-      <p v-html='main.singleProduct.product.short_description'/>
+      <p v-html='shop.singleProduct.product.short_description'/>
       <!-- VARIABLES -->
-      <div v-if='main.singleProduct.product.attributes.length > 0'>
-        <div v-for='attribute in main.singleProduct.product.attributes'
+      <div v-if='shop.singleProduct.product.attributes.length > 0'>
+        <div v-for='attribute in shop.singleProduct.product.attributes'
              :key='attribute.id'>
           <form v-if='attribute.name !== ""'>
             <select v-model='selected'>
@@ -64,7 +64,7 @@ export default {
       variation: 'productVariationByOption'
     }),
     variableProduct() {
-      if (this.main.singleProduct.variations.length > 0) return true
+      if (this.shop.singleProduct.variations.length > 0) return true
       else return false
     }
   },
@@ -76,12 +76,12 @@ export default {
           this.msg = 'first select an option'
         } else {
           this.ADD_TO_CART({
-            product: this.main.singleProduct.product,
+            product: this.shop.singleProduct.product,
             variation: this.variation(this.selected)
           })
         }
       } else {
-        this.ADD_TO_CART({ product: this.main.singleProduct.product })
+        this.ADD_TO_CART({ product: this.shop.singleProduct.product })
       }
     }
   }

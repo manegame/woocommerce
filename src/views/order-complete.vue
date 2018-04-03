@@ -1,7 +1,7 @@
 <template>
   <div class="order_complete">
     <template>
-      <div v-for='item in main.cart'
+      <div v-for='item in shop.cart'
            :key='item.id'>
         <template v-if='item.data.variation'>
           <img :src='item.data.variation.image.src' />
