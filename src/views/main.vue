@@ -22,18 +22,9 @@ import cart from '@/components/cart'
 export default {
   name: 'mainView',
   components: { cart, loader },
-  props: [],
   computed: {
     ...mapState(['shop'])
-  },
-  mounted() {},
-  updated: function() {
-    this.$nextTick(function() {
-      // Code that will run only after the
-      // entire view has been re-rendered
-    })
-  },
-  methods: {}
+  }
 }
 </script>
 

@@ -1,34 +1,58 @@
-WHAT UP!
+# M.W.E. (Manegame WooCommerce Engine)
 
-A webshop with
+## What is this for?
+<p align='center'><a href="https://woocommerce.com/">
+<img src="https://woocommerce.com/wp-content/themes/woo/images/logo-woocommerce@2x.png" alt="WooCommerce" width=100>
+</a><a href="https://vuejs.org/"><img src="https://vuejs.org/images/logo.png" alt="Vuejs" width=100>
+</a><a href="https://vuejs.org/">
+<img src="https://s.w.org/style/images/about/standard.png" alt="Vuejs" width=100>
+</a></p>
 
-- Payment
-  - credit card
-  - Paypal (T.B.Added)
 
-- Woocommerce features
+With this setup you can make a highly customizable webshop experience combining the backend power of established Woocommerce and frontend power of the Vue.js framework
+
+## Features
+
+<img style='text-align: center;' src='https://gigaom.com/wp-content/uploads/sites/1/2011/01/swiss1.jpg' alt='features' />
+
+- Payment options (expandable)
+  - Credit Card via Stripe
+
+- Woocommerce features in backend
   - stock keeping
   - variable products (diff sizes, colors, etc.)
-  - email
-    - get notified when someone places a new order
-    - email your customers with e-mail templates made to fit your need
 
+- Email customers with Sendgrid 
+  - get notified when someone places a new order
+  - email your customers with e-mail templates made to fit your need
 
-SETUP WORDPRESS
-- Woocommerce
-- Custom endpoint for payments
-- Sendgrid for mail
+## What you need to start with
+- Vuejs frontend including vuex for state management
+- A Wordpress installation on an SSL-secured server (HTTPS)
+- The MANEGAME WooCommerce REST Payments endpoint plugin
 
-SETUP SENDGRID
+## Setup Wordpress
 
-SETUP Stripe
+1. Install and activate beforementioned Wordpress plugins
 
-SETUP HOST
+### Woocommerce
+  1. Follow install instructions
+  2. Enable REST API
+  3. Keys
+  
+  - Sendgrid for mail
+
+  - Custom endpoint for payments
+
+## Setup Vue side
 Wildcard SSL certificate for secure payment (€115 for two years inc. VAT)
 
 vue (+ wp + woocommerce)
 
 Based on vue-cli/webpack
+
+
+
 
 ## Build Setup
 

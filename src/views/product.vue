@@ -60,9 +60,7 @@ export default {
   },
   computed: {
     ...mapState(['shop']),
-    ...mapGetters({
-      variation: 'productVariationByOption'
-    }),
+    ...mapGetters({ variation: 'productVariationByOption'}),
     variableProduct() {
       if (this.shop.singleProduct.variations.length > 0) return true
       else return false
