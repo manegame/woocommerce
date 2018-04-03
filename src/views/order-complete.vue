@@ -39,7 +39,7 @@ export default {
     })
   },
   computed: {
-    ...mapState(['main'])
+    ...mapState(['shop'])
   }
 }
 </script>

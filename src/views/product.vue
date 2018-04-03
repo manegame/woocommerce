@@ -59,7 +59,7 @@ export default {
     })
   },
   computed: {
-    ...mapState(['main']),
+    ...mapState(['shop']),
     ...mapGetters({
       variation: 'productVariationByOption'
     }),
