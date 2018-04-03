@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <!-- <loader v-if='shop.products.length === 0' element='images'/> -->
+    <loader v-if='shop.products.length === 0' element='images'/>
     <router-link tag='div'
                  v-for='product in shop.products'
                  :to='{name: "product", params: {slug: product.slug}}'
@@ -38,6 +38,8 @@ export default {
   &__product {
     width: 200px;
     height: auto;
+    cursor: pointer;
+    margin-right: 10px;
 
     &__image {
       width: 100%;

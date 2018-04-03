@@ -5,10 +5,11 @@
 </template>
 
 <script>
-import {mapState, mapActions} from 'vuex'
+import core from '@/components/shop/core'
 
 export default {
   name: 'app',
+  mixins: [core],
   data() {
     return {
       meta: {
@@ -29,30 +30,7 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapState(['shop'])
-  },
-  watch: {
-    $route(to, from) {
-      this.$_fetchData(to)
-      if (from.name === 'order-complete') this.EMPTY_ORDER()
-    }
-  },
-  mounted() {
-    this.$_setMetaTags()
-  },
   methods: {
-    ...mapActions([
-      'GET_PRODUCTS',
-      'GET_PRODUCT_VARIATIONS',
-      'GET_PRODUCT_CATEGORIES',
-      'GET_SHIPPING_ZONES',
-      'GET_SHIPPING_ZONE_LOCATIONS',
-      'GET_SHIPPING_ZONE_METHODS',
-      'GET_PRODUCT',
-      'SHIPPING_LOADED',
-      'EMPTY_ORDER'
-    ]),
     $_setMetaTags(meta = {}) {
       this.meta.title = meta.title || this.meta.defaults.title
       this.meta.description = meta.description || this.meta.defaults.description
@@ -60,30 +38,6 @@ export default {
       this.meta.type = meta.type || this.meta.defaults.type
       this.meta.url = 'http://xxx.com' + this.$route.fullPath
       this.$emit('updateHead')
-    },
-    $_fetchData(route) {
-      // All requests for data from the server originates from this function
-      if (route.name === 'shopView') {
-        this.GET_PRODUCTS()
-        this.GET_PRODUCT_CATEGORIES()
-      }
-      if (route.name === 'product') {
-        this.GET_PRODUCT(route.params.slug).then(() => {
-          this.GET_PRODUCT_VARIATIONS(this.shop.singleProduct.product.id)
-        })
-      }
-      if (route.name === 'checkout') {
-        this.GET_PRODUCTS()
-        this.GET_SHIPPING_ZONES()
-          .then(() => {
-            let promises = []
-            this.shop.shipping_zones.forEach((zone) => {
-              promises.push(this.GET_SHIPPING_ZONE_LOCATIONS(zone.id))
-              promises.push(this.GET_SHIPPING_ZONE_METHODS(zone.id))
-            })
-            return Promise.all(promises)
-          }).then(this.SHIPPING_LOADED)
-      }
     }
   },
   head: {

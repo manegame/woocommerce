@@ -1,6 +1,6 @@
 <template>
   <div class="cart">
-    Shoppin cart
+    <h1>Shoppin cart</h1>
     <ul>
       <li v-for='item in shop.cart'
           :key='item.data.id'>
@@ -31,21 +31,12 @@
 import {mapState, mapGetters, mapActions} from 'vuex'
 export default {
   name: 'cart',
-  data() {
-    return {}
-  },
   computed: {
     ...mapState(['shop']),
     ...mapGetters(['cartTotal', 'shippingTotal']),
     total() {
       return this.cartTotal + this.shippingTotal
     }
-  },
-  mounted: function() {
-    this.$nextTick(function() {
-      // Code that will run only after the
-      // entire view has been re-rendered
-    })
   },
   methods: {
     ...mapActions([
@@ -62,6 +53,7 @@ export default {
 @import '../style/_variables.scss';
 
 .cart {
+  padding: 10px;
   background: rgb(199, 199, 199);
   width: 400px;
 }

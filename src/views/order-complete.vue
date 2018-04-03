@@ -1,16 +1,14 @@
 <template>
   <div class="order_complete">
     <template>
+      <h1>Thanks for buying at WEBSHXP</h1>
       <div v-for='item in shop.cart'
            :key='item.id'>
         <template v-if='item.data.variation'>
           <img :src='item.data.variation.image.src' />
         </template>
         <img v-else :src='item.data.product.images[0].src'/><br>
-        You bought {{item.quantity}} of those bad boys!
-        <br>
-        <br>
-        Thanks for buying at WEBSHXP
+        <p>You bought {{item.quantity}} of those bad boys!</p>
       </div>
       <router-link :to='{ name: "mainView" }'>home</router-link>
     </template>
@@ -30,13 +28,6 @@ export default {
     return {
       msg: ''
     }
-  },
-  mounted() {},
-  updated: function() {
-    this.$nextTick(function() {
-      // Code that will run only after the
-      // entire view has been re-rendered
-    })
   },
   computed: {
     ...mapState(['shop'])
