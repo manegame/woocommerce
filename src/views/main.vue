@@ -1,8 +1,7 @@
 <template>
   <div class="main">
-    <loader v-if='shop.products.length === 0' element='images'/>
+    <!-- <loader v-if='shop.products.length === 0' element='images'/> -->
     <router-link tag='div'
-                 v-else
                  v-for='product in shop.products'
                  :to='{name: "product", params: {slug: product.slug}}'
                  :key='product.id'
