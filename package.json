@@ -1,8 +1,8 @@
 {
-  "name": "test",
+  "name": "manegame-woocommerce-restshop",
   "version": "1.0.0",
-  "description": "A Vue.js project",
-  "author": "pwrstudio <pwrpntr@gmail.com>",
+  "description": "Vuejs boilerplate code for use with Woocommerce REST API",
+  "author": "manegame <manusnijhoff@gmail.com",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",

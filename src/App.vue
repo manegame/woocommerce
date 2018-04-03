@@ -35,6 +35,7 @@ export default {
   watch: {
     $route(to, from) {
       this.$_fetchData(to)
+      if (from.name === 'order-complete') this.EMPTY_ORDER()
     }
   },
   mounted() {
@@ -49,8 +50,8 @@ export default {
       'GET_SHIPPING_ZONE_LOCATIONS',
       'GET_SHIPPING_ZONE_METHODS',
       'GET_PRODUCT',
-      'POST_ORDER',
-      'SHIPPING_LOADED'
+      'SHIPPING_LOADED',
+      'EMPTY_ORDER'
     ]),
     $_setMetaTags(meta = {}) {
       this.meta.title = meta.title || this.meta.defaults.title

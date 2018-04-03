@@ -102,6 +102,9 @@ const actions = {
   },
   async [actionTypes.PAY_ORDER]({commit, state}, data) {
     commit(mutationTypes.PAY_ORDER, await api.payOrder(data))
+  },
+  [actionTypes.EMPTY_ORDER]({commit}) {
+    commit(mutationTypes.EMPTY_ORDER)
   }
 }
 
@@ -306,6 +309,11 @@ const mutations = {
   [mutationTypes.PAY_ORDER](state, data) {
     // pay order, set progress to the returned value
     state.payment.progress = data
+  },
+  [mutationTypes.EMPTY_ORDER](state) {
+    // empty order and cart
+    state.order = emptyOrder
+    state.cart = []
   }
 }
 

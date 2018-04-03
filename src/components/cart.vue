@@ -7,18 +7,20 @@
         <!-- PRICE -->
         <template v-if='item.data.variation'>
           {{item.data.product.name}}<span>({{item.data.variation.attributes[0].option}})</span>
-          <span>€{{item.data.variation.price}}</span>
+          <span>€{{item.data.variation.price}}</span><br>
         </template>
         <template v-else>
-          <span>€{{item.data.product.price}}</span><br>
-        </template><span>amount: {{item.quantity}}</span>
-        <span @click='ADD_TO_CART(item.data)'>+</span>
-        <span @click='REMOVE_FROM_CART(item.data)'>-</span>
+          {{item.data.product.name}} <span>€{{item.data.product.price}}</span><br>
+        </template>
+        amount: 
+        <button @click='ADD_TO_CART(item.data)'>+</button>
+        <span>{{item.quantity}}</span>
+        <button @click='REMOVE_FROM_CART(item.data)'>-</button>
       </li>
     </ul>
-    <p>Items: {{cartTotal}}</p>
-    <p>Shipping: {{shippingTotal}}</p>
-    <p>Total: {{total}}</p>
+    <p>Ur shopping bag: €{{cartTotal}}</p>
+    <p>Shipping costs: €{{shippingTotal}}</p>
+    <p>Gonna cost ya: €{{total}}</p>
     <router-link v-if='$route.name !== "checkout"'
                  tag='button'
                  :to="{ name: 'checkout' }">Checkout</router-link>
